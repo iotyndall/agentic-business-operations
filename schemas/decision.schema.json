@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Decision Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "work_item_id", "decision", "rationale", "facts", "assumptions", "risk", "owner_role", "status"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "id": {"type": "string", "minLength": 1},
+    "work_item_id": {"type": "string", "minLength": 1},
+    "decision": {"type": "string", "minLength": 1},
+    "rationale": {"type": "string", "minLength": 1},
+    "facts": {"type": "array", "items": {"type": "string"}},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "options_considered": {"type": "array", "items": {"type": "string"}},
+    "risk": {"enum": ["low", "moderate", "high", "critical"]},
+    "owner_role": {"type": "string", "minLength": 1},
+    "approval_refs": {"type": "array", "items": {"type": "string"}},
+    "status": {"enum": ["proposed", "approved", "rejected", "superseded"]}
+  }
+}

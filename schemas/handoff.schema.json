@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Operations Handoff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "work_item_id", "from_department", "to_department", "requested_outcome", "acceptance_criteria", "authority_ceiling", "status"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "work_item_id": {"type": "string", "minLength": 1},
+    "from_department": {"type": "string", "minLength": 1},
+    "to_department": {"type": "string", "minLength": 1},
+    "requested_outcome": {"type": "string", "minLength": 1},
+    "context_refs": {"type": "array", "items": {"type": "string"}},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "acceptance_criteria": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "authority_ceiling": {"enum": ["OBSERVE", "ANALYZE", "DRAFT", "PROPOSE", "EXECUTE_BOUNDED", "APPROVE"]},
+    "status": {"enum": ["requested", "accepted", "rejected", "completed", "blocked"]}
+  }
+}

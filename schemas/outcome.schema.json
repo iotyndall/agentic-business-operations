@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Work Outcome",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "work_item_id", "result", "verification_result", "lessons"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "work_item_id": {"type": "string", "minLength": 1},
+    "result": {"enum": ["success", "partial", "failed", "cancelled"]},
+    "verification_result": {"enum": ["pass", "fail", "partial", "not-applicable"]},
+    "metric_results": {"type": "array", "items": {"type": "object", "required": ["metric", "value"], "properties": {"metric": {"type": "string"}, "value": {}, "target": {}}, "additionalProperties": false}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "followups": {"type": "array", "items": {"type": "string"}},
+    "lessons": {"type": "array", "items": {"type": "string"}}
+  }
+}

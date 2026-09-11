@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Evidence Reference",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "work_item_id", "kind", "source_ref", "provenance", "sensitivity", "raw_content_embedded"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "id": {"type": "string", "minLength": 1},
+    "work_item_id": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["document", "message", "metric", "system-record", "research", "observation", "synthetic"]},
+    "source_ref": {"type": "string", "minLength": 1},
+    "provenance": {"type": "string", "minLength": 1},
+    "sensitivity": {"enum": ["public", "internal", "confidential", "restricted"]},
+    "raw_content_embedded": {"type": "boolean", "const": false},
+    "collected_at": {"type": "string"},
+    "confidence": {"enum": ["high", "medium", "low", "unknown"]}
+  }
+}

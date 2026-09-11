@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Independent Business Review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "work_item_id", "reviewer_role", "reviewed_artifact_ref", "result", "findings", "independent_from_author"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "work_item_id": {"type": "string", "minLength": 1},
+    "reviewer_role": {"type": "string", "minLength": 1},
+    "reviewed_artifact_ref": {"type": "string", "minLength": 1},
+    "result": {"enum": ["PASS", "REVISE", "ESCALATE"]},
+    "findings": {"type": "array", "items": {"type": "string"}},
+    "independent_from_author": {"type": "boolean", "const": true},
+    "risk": {"enum": ["low", "moderate", "high", "critical"]}
+  }
+}

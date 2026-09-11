@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "company": {"id": "replace-me", "name": "Replace Me", "mission": "Keep real company details in the private implementation repository."},
+  "departments": ["chief-of-staff", "sales", "marketing", "service", "operations", "legal", "finance", "product"],
+  "authority": {"external_action_default": "approval-required", "financial_commitment_default": "approval-required", "bounded_actions": []},
+  "data": {"private_by_default": true, "allowed_context_refs": []},
+  "systems": []
+}
