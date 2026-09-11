@@ -9,8 +9,9 @@ required_roles = [
     'legal.md','finance.md','product.md','adversarial-reviewer.md'
 ]
 required_schemas = [
-    'work-item.schema.json','handoff.schema.json','decision.schema.json','approval.schema.json',
-    'evidence.schema.json','outcome.schema.json','review.schema.json','company-contract.schema.json'
+    'intake.schema.json','work-item.schema.json','handoff.schema.json','decision.schema.json',
+    'approval.schema.json','evidence.schema.json','outcome.schema.json','review.schema.json',
+    'company-contract.schema.json'
 ]
 
 errors=[]
@@ -50,7 +51,7 @@ for p in ROOT.rglob('*'):
             errors.append(f'non-synthetic email in {p.relative_to(ROOT)}: {addr}')
 
 constitution=(ROOT/'policies'/'company-constitution.md').read_text()
-for phrase in ['High autonomy does not mean unlimited authority','External side effects require explicit authority']:
+for phrase in ['High autonomy does not imply high authority', 'Execution authority must be explicit']:
     if phrase not in constitution: errors.append(f'constitution invariant missing: {phrase}')
 
 if errors:
