@@ -14,6 +14,9 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
@@ -21,6 +24,8 @@ jobs:
         run: python scripts/validate_repo.py
       - name: Validate company contracts
         run: python scripts/validate_company_contract.py examples/synthetic-company/company-contract.json templates/private-company/business-ops.example.json
+      - name: Negative-test company contract and framework lock controls
+        run: python scripts/contract_hardening_selftest.py
       - name: Evaluate synthetic company routing and authority
         run: python scripts/evaluate_scenarios.py
       - name: Parse every JSON asset

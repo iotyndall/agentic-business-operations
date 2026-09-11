@@ -15,6 +15,7 @@
 - [x] scenario evaluator scoring routing, authority and required handoffs
 - [x] private-company contract validator
 - [x] daily/weekly/monthly operating cadence
+- [x] hardened public/private trust boundary: system-reference integrity, immutable checkout lock, schema binding, credential non-persistence, negative tests
 
 ## Next
 - department-specific specialist roles and review rubrics;
@@ -23,4 +24,4 @@
 - executable approval/verification state machine;
 - learning proposals from verified outcomes;
 - richer adversarial scenario suites, including conflicting incentives and bad evidence;
-- first private pilots using company-local contracts without copying their private data here.
+- private pilots using company-local contracts without copying their private data here.
