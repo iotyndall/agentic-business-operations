@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agentic Business Operations Work Item",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "objective", "department", "state", "risk", "evidence", "approvals", "verification"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "id": {"type": "string", "minLength": 1},
+    "objective": {"type": "string", "minLength": 1},
+    "requester": {"type": "string"},
+    "trigger": {"type": "string"},
+    "department": {
+      "enum": ["chief-of-staff", "sales", "marketing", "service", "operations", "legal", "finance", "product", "cross-functional"]
+    },
+    "owner_role": {"type": "string"},
+    "state": {
+      "enum": ["intake", "research", "proposed", "review", "approved", "executing", "verifying", "blocked", "completed", "cancelled"]
+    },
+    "priority": {"enum": ["P0", "P1", "P2", "P3"]},
+    "risk": {"enum": ["low", "moderate", "high", "critical"]},
+    "facts": {
+      "type": "array",
+      "items": {"type": "object", "required": ["statement"], "properties": {"statement": {"type": "string"}, "source_ref": {"type": "string"}}, "additionalProperties": false}
+    },
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "reference"],
+        "properties": {
+          "kind": {"type": "string"},
+          "reference": {"type": "string"},
+          "sensitive": {"type": "boolean", "default": false}
+        },
+        "additionalProperties": false
+      }
+    },
+    "proposed_action": {"type": "string"},
+    "authority_required": {
+      "type": "array",
+      "items": {"enum": ["OBSERVE", "ANALYZE", "DRAFT", "PROPOSE", "EXECUTE_BOUNDED", "APPROVE"]},
+      "uniqueItems": true
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role", "status"],
+        "properties": {
+          "role": {"type": "string"},
+          "status": {"enum": ["required", "approved", "rejected", "not-required"]},
+          "reference": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "dependencies": {"type": "array", "items": {"type": "string"}},
+    "handoffs": {"type": "array", "items": {"type": "string"}},
+    "verification": {
+      "type": "object",
+      "required": ["criteria"],
+      "properties": {
+        "criteria": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "result": {"enum": ["pending", "pass", "fail", "partial"]},
+        "evidence_ref": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "outcome": {"type": "string"},
+    "learning": {"type": "array", "items": {"type": "string"}}
+  }
+}
