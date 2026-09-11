@@ -21,7 +21,7 @@
     "models": [
       {"id": "openai-primary", "provider": "openai", "model": "replace-with-openai-model-id", "enabled": true, "execution_modes": ["interactive", "batch"], "capabilities": ["text", "reasoning", "tools", "structured-output"], "cost_tier": "premium", "latency_tier": "standard", "quality_tier": "frontier"},
       {"id": "anthropic-review", "provider": "anthropic", "model": "replace-with-anthropic-model-id", "enabled": true, "execution_modes": ["interactive", "batch"], "capabilities": ["text", "reasoning", "tools", "structured-output"], "cost_tier": "premium", "latency_tier": "standard", "quality_tier": "frontier"},
-      {"id": "xai-fast", "provider": "xai", "model": "replace-with-xai-model-id", "enabled": true, "execution_modes": ["interactive"], "capabilities": ["text", "reasoning", "tools"], "cost_tier": "standard", "latency_tier": "fast", "quality_tier": "high"},
+      {"id": "xai-fast", "provider": "xai", "model": "replace-with-xai-model-id", "enabled": true, "execution_modes": ["interactive"], "capabilities": ["text", "reasoning", "tools", "structured-output"], "cost_tier": "standard", "latency_tier": "fast", "quality_tier": "high"},
       {"id": "openrouter-economy", "provider": "openrouter", "model": "replace-with-openrouter-model-id", "enabled": true, "execution_modes": ["interactive", "batch"], "capabilities": ["text", "structured-output"], "cost_tier": "economy", "latency_tier": "fast", "quality_tier": "standard"}
     ],
     "assignments": [
