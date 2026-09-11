@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Action Approval",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "work_item_id", "action", "authority_class", "requested_by", "approver_role", "status"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "id": {"type": "string", "minLength": 1},
+    "work_item_id": {"type": "string", "minLength": 1},
+    "action": {"type": "string", "minLength": 1},
+    "authority_class": {"enum": ["EXECUTE_BOUNDED", "APPROVE"]},
+    "requested_by": {"type": "string", "minLength": 1},
+    "approver_role": {"type": "string", "minLength": 1},
+    "status": {"enum": ["pending", "approved", "rejected", "expired", "revoked"]},
+    "conditions": {"type": "array", "items": {"type": "string"}},
+    "evidence_ref": {"type": "string"},
+    "expires_at": {"type": "string"}
+  }
+}

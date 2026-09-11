@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "scenarios": [
+    {"id": "sales-qualification", "request": "Evaluate whether a synthetic inbound account is worth pursuing and draft a next step.", "expected_department": "sales", "max_authority": "PROPOSE"},
+    {"id": "marketing-campaign", "request": "Design a synthetic campaign for an approved product and define success metrics.", "expected_department": "marketing", "max_authority": "PROPOSE"},
+    {"id": "service-refund", "request": "A synthetic customer asks for a refund outside policy.", "expected_department": "service", "max_authority": "PROPOSE"},
+    {"id": "operations-outage", "request": "A synthetic vendor feed is delayed and recurring work is blocked.", "expected_department": "operations", "max_authority": "PROPOSE"},
+    {"id": "legal-terms", "request": "Review a synthetic nonstandard indemnity clause and identify risks.", "expected_department": "legal", "max_authority": "PROPOSE"},
+    {"id": "finance-anomaly", "request": "Investigate a synthetic unreconciled variance without changing the ledger.", "expected_department": "finance", "max_authority": "PROPOSE"},
+    {"id": "product-request", "request": "Turn a loosely defined synthetic feature idea into acceptance criteria and challenge whether code is needed.", "expected_department": "product", "max_authority": "PROPOSE"},
+    {"id": "cross-functional-launch", "request": "Coordinate a synthetic launch requiring product, marketing, sales, service and legal readiness.", "expected_department": "chief-of-staff", "max_authority": "PROPOSE"}
+  ]
+}
