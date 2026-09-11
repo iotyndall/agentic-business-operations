@@ -25,6 +25,16 @@ The goal is not a collection of personas. The goal is an auditable operating mod
 
 Departments may contain multiple specialist roles. Separation of duties is preferred over a single all-powerful agent.
 
+## Model/provider control plane
+
+Model choice is independent from agent role logic. Private company contracts may declare providers such as OpenAI, Anthropic, xAI, OpenRouter, OpenAI-compatible endpoints, or custom adapters; register provider-native model IDs; and assign models by department, agent, or task.
+
+Selection precedence is deterministic:
+
+`task → agent → department → company default`
+
+Assignments may declare interactive or batch execution, required capabilities, explicit fallbacks, and whether a user may override the selected model. Credentials are referenced by name only and never stored in this public framework or its company contracts. See `docs/MODEL_SELECTION.md`.
+
 ## Repository boundary
 
 This repository is designed to be safe to share publicly.
@@ -52,7 +62,7 @@ Private companies consume this framework through local contracts and adapters in
 
 - `agentic-platform-operations` governs software engineering and release operations.
 - `agentic-business-operations` governs business roles, work, decisions, approvals, and cross-functional handoffs.
-- company repositories provide private local context, tools, systems of record, authority limits, and domain-specific policy.
+- company repositories provide private local context, tools, systems of record, authority limits, model/provider policy, and domain-specific policy.
 
 ## Architecture direction
 
@@ -86,7 +96,8 @@ Learning
 6. The agent that authors a material recommendation should not be its sole approver.
 7. Ambiguity defaults to escalation, not invented authority.
 8. Company-specific data and adapters stay outside this public repository.
+9. Model choice is configurable; authority and validation rules do not weaken when the model changes.
 
 ## Status
 
-Foundation stage. Initial work will define the company constitution, work-item lifecycle, role contracts, department authority model, handoff schemas, and evaluation framework before enabling execution adapters.
+Foundation stage. Initial work defines the company constitution, work-item lifecycle, role contracts, department authority model, handoff schemas, evaluation framework, and provider/model policy before enabling execution adapters.
