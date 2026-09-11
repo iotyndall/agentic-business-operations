@@ -19,16 +19,24 @@ jobs:
           python-version: '3.12'
       - name: Validate schemas, roles, examples and public safety
         run: python scripts/validate_repo.py
+      - name: Validate company contracts
+        run: python scripts/validate_company_contract.py examples/synthetic-company/company-contract.json templates/private-company/business-ops.example.json
+      - name: Evaluate synthetic company routing and authority
+        run: python scripts/evaluate_scenarios.py
       - name: Parse every JSON asset
         shell: bash
         run: |
           set -euo pipefail
           find schemas examples templates -type f -name '*.json' -print0 | while IFS= read -r -d '' f; do python -m json.tool "$f" >/dev/null; done
+      - name: Compile executable policy scripts
+        run: python -m py_compile scripts/*.py
       - name: Require immutable public Actions
         shell: bash
         run: |
           set -euo pipefail
-          if grep -RhoE 'uses: [^ ]+@[^ #]+' .github/workflows | grep -Ev '@[0-9a-f]{40}$'; then
+          bad=$(grep -RhoE 'uses: [^ ]+@[^ #]+' .github/workflows | grep -Ev '@[0-9a-f]{40}$' || true)
+          if [ -n "$bad" ]; then
+            echo "$bad"
             echo '::error::All public Actions must be pinned to immutable commit SHAs.'
             exit 1
           fi

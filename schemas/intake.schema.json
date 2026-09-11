@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Work Intake",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "objective", "dominant_outcome", "risk", "requires_external_action", "requires_financial_commitment"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "id": {"type": "string", "minLength": 1},
+    "objective": {"type": "string", "minLength": 1},
+    "dominant_outcome": {"enum": ["commercial-opportunity", "demand-generation", "customer-resolution", "internal-operations", "legal-obligation", "financial-control", "product-capability", "cross-functional", "unknown"]},
+    "risk": {"enum": ["low", "moderate", "high", "critical"]},
+    "material_dependencies": {"type": "array", "uniqueItems": true, "items": {"enum": ["sales", "marketing", "service", "operations", "legal", "finance", "product"]}},
+    "requires_external_action": {"type": "boolean"},
+    "requires_financial_commitment": {"type": "boolean"}
+  }
+}
