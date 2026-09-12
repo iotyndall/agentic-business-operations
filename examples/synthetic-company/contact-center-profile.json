@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "roles": {
+    "frontline": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "interaction.respond",
+        "interaction.transfer",
+        "interaction.escalate",
+        "customer.read_scoped",
+        "case.read",
+        "case.create",
+        "case.update_bounded",
+        "knowledge.search_approved",
+        "script.read_approved",
+        "identity.verify",
+        "consent.read",
+        "suppression.read",
+        "business_action.request_approval"
+      ],
+      "approval_required_capabilities": ["business_action.request_approval"],
+      "prohibited_capabilities": ["content.publish_approved", "supervisor.intervene"]
+    },
+    "supervisor": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "interaction.transfer",
+        "interaction.escalate",
+        "customer.read_scoped",
+        "case.read",
+        "case.update_bounded",
+        "knowledge.search_approved",
+        "queue.observe",
+        "queue.reassign_bounded",
+        "supervisor.monitor_flagged",
+        "supervisor.intervene",
+        "quality.sample",
+        "analytics.read_aggregate",
+        "coaching.create"
+      ],
+      "approval_required_capabilities": [],
+      "prohibited_capabilities": ["content.publish_approved"]
+    },
+    "script_author": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "knowledge.search_approved",
+        "knowledge.draft",
+        "script.draft",
+        "content.request_review",
+        "analytics.read_aggregate"
+      ],
+      "approval_required_capabilities": [],
+      "prohibited_capabilities": ["interaction.respond", "content.publish_approved"]
+    },
+    "quality_reviewer": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "quality.sample",
+        "quality.score",
+        "knowledge.search_approved",
+        "analytics.read_aggregate"
+      ],
+      "approval_required_capabilities": [],
+      "prohibited_capabilities": ["interaction.respond", "content.publish_approved", "case.update_bounded"]
+    }
+  },
+  "channels": ["voice", "chat"],
+  "content_refs": {
+    "knowledge": ["content://service/knowledge"],
+    "scripts": ["content://service/scripts"],
+    "qa_rubrics": ["content://service/qa-rubric"]
+  },
+  "policy_refs": {
+    "identity": "policy://service/identity",
+    "consent": "policy://service/consent",
+    "escalation": "policy://service/escalation",
+    "payment": "policy://service/payment",
+    "privacy_retention": "policy://service/privacy-retention"
+  },
+  "capability_bindings": [
+    {
+      "capability": "interaction.respond",
+      "system_ref": "system://service-desk",
+      "connector_ref": "connector://service-desk/conversation",
+      "authority": "execute-bounded",
+      "constraints_ref": "policy://service/frontline-response",
+      "requires_verification": true
+    },
+    {
+      "capability": "customer.read_scoped",
+      "system_ref": "system://crm",
+      "connector_ref": "connector://crm/customer-read",
+      "authority": "observe",
+      "constraints_ref": "policy://service/customer-data-scope",
+      "requires_verification": false
+    },
+    {
+      "capability": "business_action.request_approval",
+      "system_ref": "system://service-desk",
+      "connector_ref": "connector://service-desk/approval-request",
+      "authority": "approval-required",
+      "constraints_ref": "policy://service/value-authority",
+      "requires_verification": true
+    }
+  ],
+  "supervisor_trigger_refs": ["policy://service/supervisor-triggers"],
+  "sampling_policy_ref": "policy://service/qa-sampling",
+  "model_assignment_refs": ["model-assignment://service/frontline", "model-assignment://service/qa"]
+}
