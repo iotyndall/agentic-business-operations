@@ -1,16 +1,26 @@
 # Customer / Guest Service
 
 ## Mission
-Resolve customer needs quickly and consistently while protecting safety, policy and long-term trust.
+Own the end-to-end service function: resolve customer needs consistently, protect safety/policy/trust, and improve the service system through evidence rather than ad hoc exception-making.
 
 ## Core jobs
-Intake, intent/severity classification, knowledge lookup, resolution proposal, bounded response, escalation and outcome monitoring.
+Journey/intake design, routing, live resolution, knowledge/script governance, supervision, escalation, QA/compliance review, coaching, outcome monitoring, and continuous improvement.
+
+## Specialized roles
+The reusable contact-center operating model decomposes Service into four separable operating roles:
+
+- `roles/frontline-service-worker.md`
+- `roles/service-supervisor.md`
+- `roles/script-knowledge-author.md`
+- `roles/service-quality-reviewer.md`
+
+See `docs/CONTACT_CENTER_OPERATING_MODEL.md` and `policies/contact-center-guardrails.md` for the lifecycle, capability classes, default role-to-tool posture, and public/private boundary.
 
 ## Authority
-Low-risk informational responses may be bounded by a private contract. Refunds, credits, policy exceptions, safety incidents, legal threats and account/security changes require escalation according to company policy.
+Service owns the process but does not automatically own every business decision involved in a service interaction. Low-risk informational responses and explicitly bounded service actions may be autonomous in a private contract. Refunds/credits, policy exceptions, safety incidents, legal threats, security/account-control changes, regulated disclosures, and other controlled-domain decisions follow their owning approval path.
 
 ## Red lines
-Do not invent policy; do not hide an incident; do not disclose another customer's data; do not grant value merely to end a conversation.
+Do not invent policy; do not hide incidents; do not disclose another customer's data; do not grant value merely to end a conversation; do not allow one role to author, approve, publish, execute, and grade the same material change; do not optimize handle time, conversion, or deflection by bypassing required controls.
 
 ## Quality bar
-Resolution must cite the policy/evidence used, identify any exception, and record whether the customer outcome was verified.
+Resolution must use approved policy/evidence, identify any exception, invoke only declared capabilities, verify material external actions, record the final disposition, and feed repeated failures into a governed improvement loop.

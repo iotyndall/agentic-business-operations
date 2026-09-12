@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Private Contact Center Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "roles", "channels", "content_refs", "policy_refs", "capability_bindings"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frontline", "supervisor", "script_author", "quality_reviewer"],
+      "properties": {
+        "frontline": {"$ref": "contact-center-role.schema.json"},
+        "supervisor": {"$ref": "contact-center-role.schema.json"},
+        "script_author": {"$ref": "contact-center-role.schema.json"},
+        "quality_reviewer": {"$ref": "contact-center-role.schema.json"}
+      }
+    },
+    "channels": {"type": "array", "uniqueItems": true, "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "content_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["knowledge", "scripts"],
+      "properties": {
+        "knowledge": {"type": "array", "items": {"type": "string"}},
+        "scripts": {"type": "array", "items": {"type": "string"}},
+        "qa_rubrics": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "policy_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "consent", "escalation"],
+      "properties": {
+        "identity": {"type": "string", "minLength": 1},
+        "consent": {"type": "string", "minLength": 1},
+        "escalation": {"type": "string", "minLength": 1},
+        "recording_disclosure": {"type": "string"},
+        "payment": {"type": "string"},
+        "privacy_retention": {"type": "string"},
+        "accessibility": {"type": "string"}
+      }
+    },
+    "capability_bindings": {
+      "type": "array",
+      "items": {"$ref": "contact-center-binding.schema.json"}
+    },
+    "supervisor_trigger_refs": {"type": "array", "items": {"type": "string"}},
+    "sampling_policy_ref": {"type": "string"},
+    "model_assignment_refs": {"type": "array", "items": {"type": "string"}}
+  }
+}

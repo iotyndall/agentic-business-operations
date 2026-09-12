@@ -25,6 +25,14 @@ The goal is not a collection of personas. The goal is an auditable operating mod
 
 Departments may contain multiple specialist roles. Separation of duties is preferred over a single all-powerful agent.
 
+## Specialized operating modules
+
+### Contact center / service operations
+
+`docs/CONTACT_CENTER_OPERATING_MODEL.md` decomposes Service into separable Front-Line Worker, Service Supervisor, Script / Knowledge Author, and QA / Compliance Reviewer roles. It defines vendor-neutral capability classes and a private `contact-center-profile` schema so adopters can map their own channels, policies, scripts, models, systems, authority limits, and connectors without leaking them into this public repository.
+
+See also `policies/contact-center-guardrails.md` and `docs/CONTACT_CENTER_REFERENCES.md`.
+
 ## Model/provider control plane
 
 Model choice is independent from agent role logic. Private company contracts may declare providers such as OpenAI, Anthropic, xAI, OpenRouter, OpenAI-compatible endpoints, or custom adapters; register provider-native model IDs; and assign models by department, agent, or task.
@@ -100,4 +108,4 @@ Learning
 
 ## Status
 
-Foundation stage. Initial work defines the company constitution, work-item lifecycle, role contracts, department authority model, handoff schemas, evaluation framework, and provider/model policy before enabling execution adapters.
+Foundation stage. Initial work defines the company constitution, work-item lifecycle, role contracts, department authority model, handoff schemas, evaluation framework, provider/model policy, and reusable service/contact-center operating model before enabling execution adapters.

@@ -6,12 +6,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 required_roles = [
     'chief-of-staff.md','sales.md','marketing.md','service.md','operations.md',
-    'legal.md','finance.md','product.md','adversarial-reviewer.md'
+    'legal.md','finance.md','product.md','adversarial-reviewer.md',
+    'service-supervisor.md','script-knowledge-author.md','frontline-service-worker.md',
+    'service-quality-reviewer.md'
 ]
 required_schemas = [
     'intake.schema.json','work-item.schema.json','handoff.schema.json','decision.schema.json',
     'approval.schema.json','evidence.schema.json','outcome.schema.json','review.schema.json',
-    'company-contract.schema.json','model-policy.schema.json'
+    'company-contract.schema.json','model-policy.schema.json','contact-center-profile.schema.json',
+    'contact-center-role.schema.json','contact-center-binding.schema.json'
 ]
 
 errors=[]
@@ -24,7 +27,12 @@ for name in required_schemas:
         try: json.loads(p.read_text())
         except Exception as exc: errors.append(f'invalid JSON {p}: {exc}')
 
-for rel in ['examples/synthetic-company/company-contract.json','examples/synthetic-company/scenarios.json','templates/private-company/business-ops.example.json']:
+for rel in [
+    'examples/synthetic-company/company-contract.json',
+    'examples/synthetic-company/scenarios.json',
+    'examples/synthetic-company/contact-center-profile.json',
+    'templates/private-company/business-ops.example.json'
+]:
     try: json.loads((ROOT/rel).read_text())
     except Exception as exc: errors.append(f'invalid JSON {rel}: {exc}')
 
