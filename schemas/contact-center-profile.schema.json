@@ -11,10 +11,10 @@
       "additionalProperties": false,
       "required": ["frontline", "supervisor", "script_author", "quality_reviewer"],
       "properties": {
-        "frontline": {"$ref": "#/$defs/role"},
-        "supervisor": {"$ref": "#/$defs/role"},
-        "script_author": {"$ref": "#/$defs/role"},
-        "quality_reviewer": {"$ref": "#/$defs/role"}
+        "frontline": {"$ref": "contact-center-role.schema.json"},
+        "supervisor": {"$ref": "contact-center-role.schema.json"},
+        "script_author": {"$ref": "contact-center-role.schema.json"},
+        "quality_reviewer": {"$ref": "contact-center-role.schema.json"}
       }
     },
     "channels": {"type": "array", "uniqueItems": true, "minItems": 1, "items": {"type": "string", "minLength": 1}},
@@ -44,36 +44,10 @@
     },
     "capability_bindings": {
       "type": "array",
-      "items": {"$ref": "#/$defs/binding"}
+      "items": {"$ref": "contact-center-binding.schema.json"}
     },
     "supervisor_trigger_refs": {"type": "array", "items": {"type": "string"}},
     "sampling_policy_ref": {"type": "string"},
     "model_assignment_refs": {"type": "array", "items": {"type": "string"}}
-  },
-  "$defs": {
-    "role": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["enabled", "allowed_capabilities"],
-      "properties": {
-        "enabled": {"type": "boolean"},
-        "allowed_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-        "approval_required_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-        "prohibited_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
-      }
-    },
-    "binding": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["capability", "system_ref", "connector_ref", "authority"],
-      "properties": {
-        "capability": {"type": "string", "minLength": 1},
-        "system_ref": {"type": "string", "pattern": "^system://[a-z0-9][a-z0-9._-]*$"},
-        "connector_ref": {"type": "string", "pattern": "^(connector|config|mcp|tool)://[A-Za-z0-9._/-]+$"},
-        "authority": {"enum": ["observe", "propose", "execute-bounded", "approval-required"]},
-        "constraints_ref": {"type": "string"},
-        "requires_verification": {"type": "boolean", "default": true}
-      }
-    }
   }
 }
