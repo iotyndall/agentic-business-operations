@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Private Marketing Profile",
-  "description": "Binds the public marketing roles to a private company's channels, platforms, budget envelopes, content, policies, and connectors.",
+  "description": "Binds the public marketing roles to a private company's channels, platforms, budget envelopes, offer envelopes, content, policies, and connectors.",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "roles", "channels", "budget_envelopes", "content_refs", "policy_refs", "capability_bindings"],
@@ -10,12 +10,13 @@
     "roles": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["brand_manager", "direct_email", "paid_media", "social_media", "content_reviewer"],
+      "required": ["brand_manager", "direct_email", "paid_media", "social_media", "agent_relations", "content_reviewer"],
       "properties": {
         "brand_manager": {"$ref": "role-capability-policy.schema.json"},
         "direct_email": {"$ref": "role-capability-policy.schema.json"},
         "paid_media": {"$ref": "role-capability-policy.schema.json"},
         "social_media": {"$ref": "role-capability-policy.schema.json"},
+        "agent_relations": {"$ref": "role-capability-policy.schema.json"},
         "content_reviewer": {"$ref": "role-capability-policy.schema.json"}
       }
     },
@@ -28,13 +29,14 @@
         "required": ["id", "platform", "kind", "system_ref", "owner_role"],
         "properties": {
           "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
-          "platform": {"enum": ["facebook-pages", "instagram", "threads", "tiktok", "linkedin", "x", "youtube", "pinterest", "meta-ads", "google-ads", "microsoft-ads", "tiktok-ads", "linkedin-ads", "email-esp", "sms", "other"]},
-          "kind": {"enum": ["social-owned", "paid-media", "email", "messaging"]},
+          "platform": {"enum": ["facebook-pages", "instagram", "threads", "tiktok", "linkedin", "x", "youtube", "pinterest", "meta-ads", "google-ads", "microsoft-ads", "tiktok-ads", "linkedin-ads", "email-esp", "sms", "acp", "ucp", "a2a", "mcp", "llms-txt", "agent-marketplace", "other"]},
+          "kind": {"enum": ["social-owned", "paid-media", "email", "messaging", "agent-protocol"]},
           "system_ref": {"type": "string", "pattern": "^system://[a-z0-9][a-z0-9._-]*$"},
-          "owner_role": {"enum": ["direct_email", "paid_media", "social_media"]},
+          "owner_role": {"enum": ["direct_email", "paid_media", "social_media", "agent_relations"]},
           "account_ref": {"type": "string", "pattern": "^(config|secret)://[A-Za-z0-9._/-]+$"},
           "preapproved_content_classes": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-          "publish_window_ref": {"type": "string"}
+          "publish_window_ref": {"type": "string"},
+          "counterpart_classes": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
         }
       }
     },
@@ -53,6 +55,26 @@
           "daily_cap_minor": {"type": "integer"},
           "single_action_cap_minor": {"type": "integer"},
           "channels": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+          "approval_ref": {"type": "string"}
+        }
+      }
+    },
+    "offer_envelopes": {
+      "type": "array",
+      "description": "Pre-authorized negotiation bounds for agent_relations. Terms outside an envelope escalate to sales/finance/legal.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "owner_department", "channels", "terms_ref"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "owner_department": {"enum": ["sales", "finance"]},
+          "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+          "price_floor_minor": {"type": "integer"},
+          "price_ceiling_minor": {"type": "integer"},
+          "max_commitment_minor": {"type": "integer"},
+          "channels": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+          "terms_ref": {"type": "string", "minLength": 1},
           "approval_ref": {"type": "string"}
         }
       }

@@ -38,12 +38,20 @@ These defaults apply to any Company OS marketing implementation unless a stricte
 - Customer matters are handed to Service as structured work items; marketing roles do not resolve or promise.
 - During a declared crisis or incident window, publishing is approval-required across all channels.
 
-## 7. Measurement integrity
+## 7. Agent-facing surfaces and counterpart agents
+
+- External AI agents are proxies for humans or organizations; every consent, suppression, claims, and approval control applies to the agent exactly as to its principal.
+- Agent-facing surfaces (Agent Cards, catalogs, manifests, structured facts, `llms.txt`) are controlled content: reviewed before publication, version-exact, traceable attribute-by-attribute to the claims register.
+- Embedding instructions or adversarial content in data intended to manipulate a counterpart agent is prohibited.
+- Negotiation with a counterpart agent is approval-required unless a declared envelope pre-authorizes it; negotiation output is a proposal until an authorized role executes.
+- Registrations on protocols, registries, and marketplaces are declared in the private contract; undeclared ones fail closed.
+
+## 8. Measurement integrity
 
 - Attribution windows, conversion definitions, and reporting baselines are declared in the private contract and not changed to improve apparent performance.
 - Reach, engagement, volume, or efficiency never override consent, claims, targeting, or approval controls.
 
-## 8. Evidence and verification
+## 9. Evidence and verification
 
 - Every send, spend, and publish records brief version, claims trace, approval, and platform confirmation.
 - Execution is verified against the platform's reported state, not the tool call.

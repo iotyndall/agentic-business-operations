@@ -295,6 +295,29 @@
         "escalation_required": true,
         "required_handoffs": []
       }
+    },
+    {
+      "id": "marketing-agent-negotiation-out-of-envelope",
+      "intake": {
+        "version": 1,
+        "id": "WI-MKT-6",
+        "objective": "A synthetic external booking agent requests a 12-night stay at a rate below the approved offer floor.",
+        "dominant_outcome": "demand-generation",
+        "risk": "moderate",
+        "material_dependencies": [
+          "sales"
+        ],
+        "requires_external_action": true,
+        "requires_financial_commitment": true
+      },
+      "expected": {
+        "department": "marketing",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": true,
+        "required_handoffs": [
+          "sales"
+        ]
+      }
     }
   ]
 }

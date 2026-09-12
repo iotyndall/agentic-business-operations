@@ -109,6 +109,41 @@
         "case.update_bounded"
       ]
     },
+    "agent_relations": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "agent_surface.draft",
+        "agent_card.draft",
+        "agent_card.publish_bounded",
+        "structured_facts.propose",
+        "claims.read_register",
+        "protocol_policy.read",
+        "agent_registry.read",
+        "agent_discovery.monitor",
+        "agent_recommendation.read_aggregate",
+        "consent.read",
+        "suppression.read",
+        "agent.message_bounded",
+        "agent.negotiate_bounded",
+        "interaction.escalate",
+        "content.request_review",
+        "analytics.read_aggregate",
+        "experiment.propose"
+      ],
+      "approval_required_capabilities": [
+        "agent_card.publish_bounded",
+        "agent.negotiate_bounded"
+      ],
+      "prohibited_capabilities": [
+        "agent.inject_instructions",
+        "agent.execute_commitment",
+        "commitment.sign",
+        "email.send_bounded",
+        "spend.execute_bounded",
+        "post.publish_bounded",
+        "content.clear_bounded"
+      ]
+    },
     "content_reviewer": {
       "enabled": true,
       "allowed_capabilities": [
@@ -133,7 +168,9 @@
         "claims.register_propose",
         "email.send_bounded",
         "spend.execute_bounded",
-        "post.publish_bounded"
+        "post.publish_bounded",
+        "agent_card.draft",
+        "structured_facts.propose"
       ]
     }
   },
@@ -188,6 +225,32 @@
       "preapproved_content_classes": [
         "transactional-booking-confirmation"
       ]
+    },
+    {
+      "id": "acp-storefront",
+      "platform": "acp",
+      "kind": "agent-protocol",
+      "system_ref": "system://synthetic-agent-surface",
+      "owner_role": "agent_relations",
+      "account_ref": "config://marketing/agents/acp",
+      "counterpart_classes": [
+        "consumer-shopping-agent"
+      ]
+    },
+    {
+      "id": "a2a-card",
+      "platform": "a2a",
+      "kind": "agent-protocol",
+      "system_ref": "system://synthetic-agent-surface",
+      "owner_role": "agent_relations",
+      "account_ref": "config://marketing/agents/a2a",
+      "counterpart_classes": [
+        "procurement-agent",
+        "booking-agent"
+      ],
+      "preapproved_content_classes": [
+        "informational-availability-reply"
+      ]
     }
   ],
   "budget_envelopes": [
@@ -204,6 +267,22 @@
         "google-ads-main"
       ],
       "approval_ref": "approval://finance/marketing-envelope"
+    }
+  ],
+  "offer_envelopes": [
+    {
+      "id": "agent-direct-booking-synthetic",
+      "owner_department": "sales",
+      "currency": "USD",
+      "price_floor_minor": 15000,
+      "price_ceiling_minor": 45000,
+      "max_commitment_minor": 200000,
+      "channels": [
+        "acp-storefront",
+        "a2a-card"
+      ],
+      "terms_ref": "content://sales/standard-terms",
+      "approval_ref": "approval://sales/agent-offer-envelope"
     }
   ],
   "content_refs": {
@@ -316,12 +395,44 @@
       "authority": "approval-required",
       "constraints_ref": "policy://marketing/consent",
       "requires_verification": true
+    },
+    {
+      "capability": "agent_card.publish_bounded",
+      "system_ref": "system://synthetic-agent-surface",
+      "connector_ref": "connector://agents/card-publish",
+      "authority": "approval-required",
+      "constraints_ref": "content://marketing/claims-register",
+      "requires_verification": true
+    },
+    {
+      "capability": "agent.message_bounded",
+      "system_ref": "system://synthetic-agent-surface",
+      "connector_ref": "connector://agents/message",
+      "authority": "execute-bounded",
+      "constraints_ref": "policy://marketing/agent-message-classes",
+      "requires_verification": true
+    },
+    {
+      "capability": "agent.negotiate_bounded",
+      "system_ref": "system://synthetic-agent-surface",
+      "connector_ref": "connector://agents/negotiate",
+      "authority": "approval-required",
+      "constraints_ref": "offer://agent-direct-booking-synthetic",
+      "requires_verification": true
+    },
+    {
+      "capability": "agent_discovery.monitor",
+      "system_ref": "system://synthetic-agent-surface",
+      "connector_ref": "connector://agents/discovery",
+      "authority": "observe",
+      "requires_verification": false
     }
   ],
   "sampling_policy_ref": "policy://marketing/published-sampling",
   "model_assignment_refs": [
     "model-assignment://marketing/brand",
     "model-assignment://marketing/channels",
-    "model-assignment://marketing/reviewer"
+    "model-assignment://marketing/reviewer",
+    "model-assignment://marketing/agent-relations"
   ]
 }

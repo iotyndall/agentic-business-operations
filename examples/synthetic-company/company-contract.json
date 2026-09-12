@@ -65,6 +65,11 @@
       "id": "synthetic-content",
       "kind": "content",
       "write_authority": "bounded"
+    },
+    {
+      "id": "synthetic-agent-surface",
+      "kind": "agent-protocol",
+      "write_authority": "approval-required"
     }
   ]
 }

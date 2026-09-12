@@ -5,13 +5,14 @@ Create measurable demand and strengthen the company brand while preserving factu
 
 ## Department structure
 
-Marketing is decomposed into governed specialist roles with separated duties:
+Marketing is decomposed into six governed specialist roles with separated duties:
 
 1. **Brand Manager** — owns positioning, brand voice, the claims standard, and the campaign portfolio; authors briefs but does not self-approve controlled content. See `roles/brand-manager.md`.
 2. **Direct Email Specialist** — lifecycle, promotional, and transactional email to consenting audiences within send authority. See `roles/direct-email-specialist.md`.
 3. **Paid Media Specialist** — paid acquisition within an approved budget envelope and cleared targeting and creative. See `roles/paid-media-specialist.md`.
 4. **Social Media Specialist** — owned-channel publishing and engagement with pre-approved content classes; routes non-marketing interactions to Service or Legal. See `roles/social-media-specialist.md`.
-5. **Marketing Content & Claims Reviewer** — independently gates guidelines, claims, briefs, and content before release and samples afterward. See `roles/marketing-content-reviewer.md`.
+5. **Agent Relations Specialist** — owns the company's agent-facing surface and relationships with external AI agents (business-to-agent); publishes only reviewed structured facts and negotiates only inside an approved envelope. See `roles/agent-relations-specialist.md`.
+6. **Marketing Content & Claims Reviewer** — independently gates guidelines, claims, briefs, and content before release and samples afterward. See `roles/marketing-content-reviewer.md`.
 
 The reusable lifecycle is:
 

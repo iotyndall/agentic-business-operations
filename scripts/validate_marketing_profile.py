@@ -7,8 +7,8 @@ profile cannot quietly widen what a marketing role may do.
 """
 import json, sys
 
-ROLE_KEYS = ('brand_manager', 'direct_email', 'paid_media', 'social_media', 'content_reviewer')
-CHANNEL_ROLES = {'direct_email', 'paid_media', 'social_media'}
+ROLE_KEYS = ('brand_manager', 'direct_email', 'paid_media', 'social_media', 'agent_relations', 'content_reviewer')
+CHANNEL_ROLES = {'direct_email', 'paid_media', 'social_media', 'agent_relations'}
 
 # Capabilities that perform an external or financial action. Only the named role may hold each.
 EXCLUSIVE = {
@@ -19,22 +19,31 @@ EXCLUSIVE = {
     'post.publish_bounded': 'social_media',
     'reply.publish_bounded': 'social_media',
     'content.clear_bounded': 'content_reviewer',
+    'agent_card.publish_bounded': 'agent_relations',
+    'agent.negotiate_bounded': 'agent_relations',
+    'agent.message_bounded': 'agent_relations',
 }
 # No marketing role may ever hold these; they belong to Finance or a release mechanism.
-FORBIDDEN_EVERYWHERE = {'budget.create', 'content.publish_approved', 'consent.record', 'suppression.record'}
+FORBIDDEN_EVERYWHERE = {'budget.create', 'content.publish_approved', 'consent.record', 'suppression.record',
+                        'agent.inject_instructions', 'agent.execute_commitment', 'commitment.sign'}
 # Authoring capabilities the reviewer must never hold (cannot review own work).
 AUTHORING = {'post.draft', 'reply.draft', 'email.draft', 'email.template_draft', 'creative.draft',
-             'brand.guideline_draft', 'claims.register_propose', 'campaign.plan_draft'}
+             'brand.guideline_draft', 'claims.register_propose', 'campaign.plan_draft',
+             'agent_surface.draft', 'agent_card.draft', 'structured_facts.propose'}
 # Prerequisite capabilities: if a role may do X it must also be able to observe Y.
 PREREQS = {
     'email.send_bounded': {'consent.read', 'suppression.read'},
     'email.schedule_bounded': {'consent.read', 'suppression.read'},
     'post.publish_bounded': {'ugc.consent_read', 'platform_policy.read'},
     'spend.execute_bounded': {'pacing.read', 'platform_policy.read', 'campaign.pause'},
+    'agent_card.publish_bounded': {'claims.read_register', 'protocol_policy.read'},
+    'agent.negotiate_bounded': {'protocol_policy.read', 'claims.read_register', 'interaction.escalate'},
+    'agent.message_bounded': {'consent.read', 'suppression.read', 'protocol_policy.read'},
 }
 # Capabilities that must be approval-required at the role level unless the private contract pre-authorises them.
-APPROVAL_BY_DEFAULT = {'email.send_bounded', 'email.schedule_bounded', 'reply.publish_bounded', 'budget.request', 'campaign.brief_publish_bounded'}
-KIND_FOR_ROLE = {'direct_email': {'email', 'messaging'}, 'paid_media': {'paid-media'}, 'social_media': {'social-owned'}}
+APPROVAL_BY_DEFAULT = {'email.send_bounded', 'email.schedule_bounded', 'reply.publish_bounded', 'budget.request', 'campaign.brief_publish_bounded',
+                       'agent_card.publish_bounded', 'agent.negotiate_bounded'}
+KIND_FOR_ROLE = {'direct_email': {'email', 'messaging'}, 'paid_media': {'paid-media'}, 'social_media': {'social-owned'}, 'agent_relations': {'agent-protocol'}}
 
 
 def fail(msg, errors): errors.append(msg)
@@ -77,8 +86,8 @@ def validate(company, profile):
             fail(f'{name} must be able to request review when enabled', errors)
         if name == 'paid_media' and role.get('enabled') and 'creative.request_review' not in allowed:
             fail('paid_media must be able to request creative review when enabled', errors)
-        if name == 'social_media' and role.get('enabled') and 'interaction.escalate' not in allowed:
-            fail('social_media must allow interaction.escalate when enabled', errors)
+        if name in {'social_media', 'agent_relations'} and role.get('enabled') and 'interaction.escalate' not in allowed:
+            fail(f'{name} must allow interaction.escalate when enabled', errors)
 
     for cap, owner in EXCLUSIVE.items():
         others = holders.get(cap, set()) - {owner}
@@ -114,6 +123,16 @@ def validate(company, profile):
     if paid_channels - enveloped and 'spend.execute_bounded' in holders:
         fail(f'paid channels without a budget envelope cannot carry spend authority: {sorted(paid_channels - enveloped)}', errors)
 
+    agent_channels = {c for c, ch in channel_ids.items() if ch.get('kind') == 'agent-protocol'}
+    offer_ids = set()
+    for env in profile.get('offer_envelopes', []) or []:
+        eid = env.get('id'); offer_ids.add(eid)
+        fl = env.get('price_floor_minor'); ce = env.get('price_ceiling_minor')
+        if fl is not None and ce is not None and fl > ce: fail(f'offer envelope {eid} floor exceeds ceiling', errors)
+        for c in env.get('channels', []):
+            if c not in channel_ids: fail(f'offer envelope {eid} references undeclared channel {c}', errors)
+            elif c not in agent_channels: fail(f'offer envelope {eid} references non-agent channel {c}', errors)
+
     declared = set().union(*(set(r.get('allowed_capabilities', []) or []) for r in roles.values() if isinstance(r, dict))) if roles else set()
     seen = set()
     bound = set()
@@ -133,7 +152,11 @@ def validate(company, profile):
             cref = b.get('constraints_ref', '')
             if not cref.startswith('envelope://') or cref[11:] not in envelope_ids:
                 fail('spend.execute_bounded binding must be constrained by a declared envelope://<id>', errors)
-        if cap in {'post.publish_bounded', 'email.send_bounded'} and not b.get('constraints_ref'):
+        if cap == 'agent.negotiate_bounded':
+            cref = b.get('constraints_ref', '')
+            if not cref.startswith('offer://') or cref[8:] not in offer_ids:
+                fail('agent.negotiate_bounded binding must be constrained by a declared offer://<id> envelope', errors)
+        if cap in {'post.publish_bounded', 'email.send_bounded', 'agent_card.publish_bounded'} and not b.get('constraints_ref'):
             fail(f'{cap} binding must declare a constraints_ref', errors)
     for cap in set(EXCLUSIVE) & declared:
         if cap not in bound:

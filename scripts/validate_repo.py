@@ -9,7 +9,8 @@ required_roles = [
     'legal.md','finance.md','product.md','adversarial-reviewer.md',
     'service-supervisor.md','script-knowledge-author.md','frontline-service-worker.md',
     'service-quality-reviewer.md','brand-manager.md','direct-email-specialist.md',
-    'paid-media-specialist.md','social-media-specialist.md','marketing-content-reviewer.md'
+    'paid-media-specialist.md','social-media-specialist.md','marketing-content-reviewer.md',
+    'agent-relations-specialist.md'
 ]
 required_schemas = [
     'intake.schema.json','work-item.schema.json','handoff.schema.json','decision.schema.json',

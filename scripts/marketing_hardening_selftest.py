@@ -31,6 +31,13 @@ cases = [
     ('email channel owned by social role', lambda p: p['channels'][4].update(owner_role='social_media'), 'cannot be owned by'),
     ('material binding without verification', lambda p: [b.update(requires_verification=False) for b in p['capability_bindings'] if b['capability']=='post.publish_bounded'], 'must require verification'),
     ('exclusive capability left unbound', lambda p: p['capability_bindings'].__delitem__(next(i for i,b in enumerate(p['capability_bindings']) if b['capability']=='content.clear_bounded')), 'has no capability binding'),
+    ('agent relations injects instructions', add('agent_relations', 'agent.inject_instructions'), 'may not hold'),
+    ('agent relations executes commitment', add('agent_relations', 'agent.execute_commitment'), 'may not hold'),
+    ('negotiation without offer envelope', lambda p: [b.update(constraints_ref='policy://x') for b in p['capability_bindings'] if b['capability']=='agent.negotiate_bounded'], 'declared offer://'),
+    ('offer envelope floor above ceiling', lambda p: p['offer_envelopes'][0].update(price_floor_minor=99999), 'floor exceeds ceiling'),
+    ('social media negotiates with agents', add('social_media', 'agent.negotiate_bounded'), 'may only be held by agent_relations'),
+    ('agent card publish without claims read', drop('agent_relations', 'claims.read_register'), 'lacks prerequisite'),
+    ('reviewer drafts agent card', add('content_reviewer', 'agent_card.draft'), 'may not author what it reviews'),
 ]
 
 failures = []
