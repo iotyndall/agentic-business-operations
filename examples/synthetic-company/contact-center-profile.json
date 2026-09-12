@@ -81,7 +81,7 @@
   "capability_bindings": [
     {
       "capability": "interaction.respond",
-      "system_ref": "system://service-desk",
+      "system_ref": "system://synthetic-helpdesk",
       "connector_ref": "connector://service-desk/conversation",
       "authority": "execute-bounded",
       "constraints_ref": "policy://service/frontline-response",
@@ -89,7 +89,7 @@
     },
     {
       "capability": "customer.read_scoped",
-      "system_ref": "system://crm",
+      "system_ref": "system://synthetic-crm",
       "connector_ref": "connector://crm/customer-read",
       "authority": "observe",
       "constraints_ref": "policy://service/customer-data-scope",
@@ -97,7 +97,7 @@
     },
     {
       "capability": "business_action.request_approval",
-      "system_ref": "system://service-desk",
+      "system_ref": "system://synthetic-helpdesk",
       "connector_ref": "connector://service-desk/approval-request",
       "authority": "approval-required",
       "constraints_ref": "policy://service/value-authority",
