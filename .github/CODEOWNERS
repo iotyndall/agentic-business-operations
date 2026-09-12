@@ -1,0 +1,6 @@
+# Changes to the trust boundary private companies lock to require owner review.
+/schemas/    @iotyndall
+/scripts/    @iotyndall
+/policies/   @iotyndall
+/.github/    @iotyndall
+/templates/  @iotyndall

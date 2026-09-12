@@ -9,18 +9,18 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: business-ops-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
-
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.12'
 
       - name: Read immutable Company OS framework lock
         id: lock
@@ -41,40 +41,19 @@ jobs:
           path: .company-os
           persist-credentials: false
 
+      # All framework gates are stdlib-only; the runner's system Python is sufficient.
       - name: Bind checkout to lock
-        run: python .company-os/scripts/validate_framework_lock.py .agentic/business-ops.lock.json .company-os
+        run: python3 .company-os/scripts/validate_framework_lock.py .agentic/business-ops.lock.json .company-os
 
       - name: Apply exact locked contract schema
         shell: bash
         run: |
           set -euo pipefail
           SCHEMA="$(jq -r '.contract_schema' .agentic/business-ops.lock.json)"
-          python .company-os/scripts/validate_json_schema.py ".company-os/$SCHEMA" .agentic/business-ops.json
+          python3 .company-os/scripts/validate_json_schema.py ".company-os/$SCHEMA" .agentic/business-ops.json
 
       - name: Validate semantic Company OS invariants
-        run: python .company-os/scripts/validate_company_contract.py .agentic/business-ops.json
+        run: python3 .company-os/scripts/validate_company_contract.py .agentic/business-ops.json
 
       - name: Prove unresolved system references fail closed
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import json
-          p='.agentic/business-ops.json'
-          d=json.load(open(p))
-          d['data'].setdefault('allowed_context_refs',[]).append('system://__undeclared_selftest__')
-          json.dump(d,open('/tmp/bad-business-ops.json','w'))
-          PY
-          set +e
-          python .company-os/scripts/validate_company_contract.py /tmp/bad-business-ops.json > /tmp/business-ops-selftest.out 2>&1
-          STATUS=$?
-          set -e
-          cat /tmp/business-ops-selftest.out
-          if [ "$STATUS" -ne 1 ]; then
-            echo "::error::Expected semantic rejection exit 1, got $STATUS."
-            exit 1
-          fi
-          if ! grep -Fq 'allowed_context_ref system://__undeclared_selftest__ does not resolve to a declared system' /tmp/business-ops-selftest.out; then
-            echo '::error::Validator failed without the expected unresolved-system diagnostic.'
-            exit 1
-          fi
+        run: python3 .company-os/scripts/contract_selftest.py .agentic/business-ops.json
