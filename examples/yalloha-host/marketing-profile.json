@@ -1,0 +1,218 @@
+{
+ "version": 1,
+ "roles": {
+  "brand_manager": {
+   "enabled": true,
+   "allowed_capabilities": [
+    "brand.guideline_draft",
+    "claims.register_propose",
+    "campaign.plan_draft",
+    "campaign.brief_publish_bounded",
+    "audience.research",
+    "positioning.propose",
+    "asset.request",
+    "content.request_review",
+    "analytics.read_aggregate",
+    "experiment.propose",
+    "learning.record"
+   ],
+   "approval_required_capabilities": [
+    "campaign.brief_publish_bounded"
+   ],
+   "prohibited_capabilities": [
+    "email.send_bounded",
+    "spend.execute_bounded",
+    "post.publish_bounded",
+    "content.clear_bounded",
+    "budget.create"
+   ]
+  },
+  "direct_email": {
+   "enabled": false,
+   "allowed_capabilities": [],
+   "approval_required_capabilities": [],
+   "prohibited_capabilities": [
+    "consent.record",
+    "content.clear_bounded",
+    "spend.execute_bounded",
+    "post.publish_bounded"
+   ]
+  },
+  "paid_media": {
+   "enabled": false,
+   "allowed_capabilities": [],
+   "approval_required_capabilities": [],
+   "prohibited_capabilities": [
+    "budget.create",
+    "content.clear_bounded",
+    "email.send_bounded",
+    "post.publish_bounded"
+   ]
+  },
+  "social_media": {
+   "enabled": true,
+   "allowed_capabilities": [
+    "post.draft",
+    "post.schedule",
+    "post.publish_bounded",
+    "mention.monitor",
+    "sentiment.read_aggregate",
+    "ugc.consent_read",
+    "platform_policy.read",
+    "interaction.escalate",
+    "analytics.read_aggregate",
+    "experiment.propose",
+    "content.request_review"
+   ],
+   "approval_required_capabilities": [],
+   "prohibited_capabilities": [
+    "content.clear_bounded",
+    "spend.execute_bounded",
+    "email.send_bounded",
+    "case.update_bounded"
+   ]
+  },
+  "agent_relations": {
+   "enabled": false,
+   "allowed_capabilities": [],
+   "approval_required_capabilities": [],
+   "prohibited_capabilities": [
+    "agent.inject_instructions",
+    "agent.execute_commitment",
+    "commitment.sign",
+    "email.send_bounded",
+    "spend.execute_bounded",
+    "post.publish_bounded",
+    "content.clear_bounded"
+   ]
+  },
+  "content_reviewer": {
+   "enabled": true,
+   "allowed_capabilities": [
+    "content.review",
+    "claims.verify",
+    "guideline.compare",
+    "consent.read",
+    "platform_policy.read",
+    "published.sample",
+    "review.record",
+    "content.reject",
+    "content.clear_bounded",
+    "analytics.read_aggregate",
+    "interaction.escalate"
+   ],
+   "approval_required_capabilities": [],
+   "prohibited_capabilities": [
+    "post.draft",
+    "email.draft",
+    "creative.draft",
+    "brand.guideline_draft",
+    "claims.register_propose",
+    "email.send_bounded",
+    "spend.execute_bounded",
+    "post.publish_bounded",
+    "agent_card.draft",
+    "structured_facts.propose"
+   ]
+  }
+ },
+ "channels": [
+  {
+   "id": "fb-page",
+   "platform": "facebook-pages",
+   "kind": "social-owned",
+   "system_ref": "system://yalloha",
+   "owner_role": "social_media",
+   "account_ref": "config://marketing/social/facebook-page",
+   "preapproved_content_classes": [
+    "consented-review-repost"
+   ]
+  },
+  {
+   "id": "ig",
+   "platform": "instagram",
+   "kind": "social-owned",
+   "system_ref": "system://yalloha",
+   "owner_role": "social_media",
+   "account_ref": "config://marketing/social/instagram",
+   "preapproved_content_classes": [
+    "consented-review-repost"
+   ]
+  }
+ ],
+ "budget_envelopes": [],
+ "content_refs": {
+  "brand_guideline": "content://brand/host-voice.md",
+  "claims_register": "content://brand/claims.json",
+  "review_rubric": "content://brand/review-rubric.md"
+ },
+ "policy_refs": {
+  "consent": "policy://ugc-consent.md",
+  "targeting": "policy://targeting.md",
+  "platform_policy": "policy://meta-platform-policy.md",
+  "escalation": "policy://escalation.md",
+  "ugc_consent": "policy://ugc-consent.md"
+ },
+ "capability_bindings": [
+  {
+   "capability": "ugc.consent_read",
+   "system_ref": "system://yalloha",
+   "connector_ref": "connector://yalloha/list_pending_reviews",
+   "authority": "observe"
+  },
+  {
+   "capability": "post.draft",
+   "system_ref": "system://yalloha",
+   "connector_ref": "connector://yalloha/generate_post",
+   "authority": "propose"
+  },
+  {
+   "capability": "post.schedule",
+   "system_ref": "system://yalloha",
+   "connector_ref": "connector://yalloha/update_review_status",
+   "authority": "execute-bounded",
+   "requires_verification": true
+  },
+  {
+   "capability": "post.publish_bounded",
+   "system_ref": "system://yalloha",
+   "connector_ref": "connector://yalloha/publish_post",
+   "authority": "execute-bounded",
+   "constraints_ref": "content-class://consented-review-repost",
+   "requires_verification": true
+  },
+  {
+   "capability": "published.sample",
+   "system_ref": "system://yalloha",
+   "connector_ref": "connector://yalloha/list_all_posts",
+   "authority": "observe"
+  },
+  {
+   "capability": "analytics.read_aggregate",
+   "system_ref": "system://yalloha",
+   "connector_ref": "connector://yalloha/get_analytics",
+   "authority": "observe"
+  },
+  {
+   "capability": "platform_policy.read",
+   "system_ref": "system://yalloha",
+   "connector_ref": "config://policy/meta-platform-policy",
+   "authority": "observe"
+  },
+  {
+   "capability": "content.clear_bounded",
+   "system_ref": "system://yalloha",
+   "connector_ref": "tool://ledger/reviews/clearances",
+   "authority": "execute-bounded",
+   "requires_verification": true
+  }
+ ],
+ "sampling_policy_ref": "policy://marketing/published-sampling",
+ "model_assignment_refs": [
+  "model-assignment://marketing/brand",
+  "model-assignment://marketing/channels",
+  "model-assignment://marketing/reviewer",
+  "model-assignment://marketing/agent-relations"
+ ],
+ "offer_envelopes": []
+}

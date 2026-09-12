@@ -1,0 +1,47 @@
+{
+ "version": 1,
+ "company": {
+  "id": "example-str-host",
+  "name": "Example STR Host",
+  "mission": "Family-friendly short-term rentals; every guest review earns the next booking."
+ },
+ "departments": [
+  "chief-of-staff",
+  "marketing",
+  "service",
+  "finance",
+  "legal"
+ ],
+ "authority": {
+  "external_action_default": "deny",
+  "financial_commitment_default": "deny",
+  "bounded_actions": [
+   "draft-only-synthetic-response"
+  ]
+ },
+ "data": {
+  "private_by_default": true,
+  "allowed_context_refs": [
+   "synthetic://catalog",
+   "synthetic://crm",
+   "synthetic://policies"
+  ]
+ },
+ "systems": [
+  {
+   "id": "yalloha",
+   "kind": "social",
+   "write_authority": "bounded"
+  },
+  {
+   "id": "example-pms",
+   "kind": "service",
+   "write_authority": "none"
+  },
+  {
+   "id": "example-ledger",
+   "kind": "finance",
+   "write_authority": "none"
+  }
+ ]
+}

@@ -109,6 +109,14 @@ See `roles/strategy.md` and `policies/strategy-guardrails.md`.
 
 `scripts/export_claude_code.py` turns the role contracts for a company's enabled departments into Claude Code subagents, installs a `PreToolUse` guard that denies any call exceeding the role's authority (external actions, confidential scopes, decision records), and a `PostToolUse` hook that appends ledger events. The human sits in the terminal as the principal. See `docs/CLAUDE_CODE.md`.
 
+## Standing charters (cadence and events)
+
+A charter is a human-written standing authorization for the Chief of Staff or a department to *initiate* a commission on a cron or event — the calendar half of a standing approval. It can start work; it can never widen what any role may execute. Runs carry a hard external-action budget the guard enforces, downgrade to draft-only if a standing approval is missing, and refuse to overlap. See `docs/CHARTERS.md`.
+
+## Published connectors
+
+A connector is a vendor-published map from an MCP server's tools to Company OS capabilities and authority classes (`schemas/connector.schema.json`). It lets a private company bind roles to a real product without hand-writing allowlists, and lets the guard enforce the vendor's own boundary: which tools observe, which propose, which publish or pay. The first is `connectors/yalloha/` — governed review-to-social publishing for short-term rental hosts — with the full draft → clear → standing approval → publish flow proven in CI. See `connectors/README.md`.
+
 ## Model and provider control plane
 
 Agent roles are independent from model vendors. Private company contracts can register providers such as OpenAI, Anthropic, xAI, OpenRouter, OpenAI-compatible endpoints, or custom adapters and assign provider-native model IDs by department, agent, or task.
@@ -166,7 +174,7 @@ bounded execution
 - account, tax, banking, portfolio, or family-office information;
 - private contracts, legal matters, or financial records;
 - real property/account/customer identifiers;
-- Mesa Global, YALLOHA, Tyndall Personal Finance, or other private-company configuration.
+- Mesa Global, Tyndall Personal Finance, or other private-company configuration. (A vendor's *published connector* — the public tool-to-capability map for a product such as Yalloha — is fine; a company's account, credentials, and profile are not.)
 
 ## Private adoption contract
 

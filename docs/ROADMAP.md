@@ -21,6 +21,10 @@
 - [x] marketing routing scenarios
 - [x] strategy & insights department, roles, guardrails and scenarios
 - [x] Claude Code runtime adapter: role contracts as subagents, authority guard hook, ledger events
+- [x] marketing roles exported as subagents
+- [x] published connector schema + validator; standing approvals bounded by reviewer clearances
+- [x] first connector: Yalloha (review → social publish)
+- [x] standing charters: cron/event-initiated commissions with per-run external-action budgets, headless runner, reference cron workflow
 
 ## Next
 - department-specific specialist roles and review rubrics;

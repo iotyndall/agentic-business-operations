@@ -76,6 +76,11 @@
       "id": "synthetic-strategy-repo",
       "kind": "strategy",
       "write_authority": "none"
+    },
+    {
+      "id": "yalloha",
+      "kind": "social",
+      "write_authority": "bounded"
     }
   ]
 }

@@ -21,6 +21,7 @@ Claude Code is the reference runtime for ad hoc work: the human sits in a termin
 3. Confidential scopes: only the owning role reads or writes inside them.
 4. Decision records: agents write drafts only; a draft needs ≥2 options, a review reference, and fully-owned assumptions; agents never populate the decision.
 5. Missing manifest → fail closed for everything except plain reads.
+6. Connector servers: only exposed when declared in the company contract's `systems`; tools outside the published connector map are denied; cleared artifacts are immutable; standing approvals honor `max_per_day`.
 
 ## Setting up a private repo
 ```

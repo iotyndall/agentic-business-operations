@@ -1,0 +1,33 @@
+# Reference GitHub Actions workflow for a private company repo. Copy to .github/workflows/charter-<id>.yml.
+# Runs one charter headlessly on its cron, commits the ledger, and opens a PR so a human sees every run.
+# Secrets needed in the private repo: ANTHROPIC_API_KEY. MCP servers used by the charter must be configured in
+# .mcp.json with credentials the runner can use (API keys via secrets; OAuth-only servers need a pre-issued token).
+name: charter-{{CHARTER_ID}}
+on:
+  schedule:
+    - cron: "{{CRON_UTC}}"        # convert the charter's timezone cron to UTC
+  workflow_dispatch: {}
+permissions:
+  contents: write
+  pull-requests: write
+concurrency: { group: charter-{{CHARTER_ID}}, cancel-in-progress: false }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: {{MAX_RUNTIME_MINUTES}}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with: { persist-credentials: true }
+      - run: bash scripts/bootstrap.sh
+      - run: npm install -g @anthropic-ai/claude-code
+      - run: python3 .company-os/scripts/validate_charter.py .agentic/business-ops.json cadence/{{CHARTER_ID}}.charter.json
+      - env: { ANTHROPIC_API_KEY: "${{ secrets.ANTHROPIC_API_KEY }}" }
+        run: python3 .company-os/scripts/run_charter.py cadence/{{CHARTER_ID}}.charter.json --headless
+      - name: open PR with the ledger
+        run: |
+          git config user.name company-os-bot && git config user.email company-os-bot@example.invalid
+          B=charter/{{CHARTER_ID}}/$(date -u +%Y%m%dT%H%M%SZ)
+          git checkout -b "$B" && git add .agentic && git commit -qm "charter {{CHARTER_ID}}: run ledger" || exit 0
+          git push -u origin "$B"
+          gh pr create --fill --base main --head "$B" --title "charter {{CHARTER_ID}} run $(date -u +%F)" --body "Automated charter run. Review .agentic/runs/ and the ledger before merging."
+        env: { GH_TOKEN: "${{ github.token }}" }

@@ -6,6 +6,21 @@ roles/marketing.md and policies/marketing-guardrails.md so that a private
 profile cannot quietly widen what a marketing role may do.
 """
 import json, sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+CONNECTOR_SERVER = {}
+
+
+def connector_index():
+    """connector://<id>/<tool> -> declared tool, from every published connector in connectors/."""
+    idx = {}
+    for cf in sorted((ROOT / 'connectors').glob('*/connector.json')):
+        try: c = json.loads(cf.read_text(encoding='utf-8'))
+        except Exception: continue
+        CONNECTOR_SERVER[c['id']] = c.get('mcp', {}).get('server_name', c['id'])
+        for t in c.get('tools', []): idx[f"connector://{c['id']}/{t['tool']}"] = t
+    return idx
 
 ROLE_KEYS = ('brand_manager', 'direct_email', 'paid_media', 'social_media', 'agent_relations', 'content_reviewer')
 CHANNEL_ROLES = {'direct_email', 'paid_media', 'social_media', 'agent_relations'}
@@ -133,6 +148,7 @@ def validate(company, profile):
             if c not in channel_ids: fail(f'offer envelope {eid} references undeclared channel {c}', errors)
             elif c not in agent_channels: fail(f'offer envelope {eid} references non-agent channel {c}', errors)
 
+    cidx = connector_index()
     declared = set().union(*(set(r.get('allowed_capabilities', []) or []) for r in roles.values() if isinstance(r, dict))) if roles else set()
     seen = set()
     bound = set()
@@ -158,6 +174,19 @@ def validate(company, profile):
                 fail('agent.negotiate_bounded binding must be constrained by a declared offer://<id> envelope', errors)
         if cap in {'post.publish_bounded', 'email.send_bounded', 'agent_card.publish_bounded'} and not b.get('constraints_ref'):
             fail(f'{cap} binding must declare a constraints_ref', errors)
+        cref = b.get('connector_ref', '')
+        published_ids = {k.split('/')[2] for k in cidx}
+        if cref.startswith('connector://') and cref.split('/')[2] in published_ids:
+            # A binding to a *published* connector's tool must exist and must carry the capability the connector declares for it.
+            # Refs to unpublished (private) connectors are the adopter's own and are not checked here.
+            t = cidx.get(cref)
+            if t is None: fail(f'{cap} binds {cref}, which no published connector declares', errors)
+            elif t['capability'] != cap: fail(f'{cap} binds {cref}, but the connector declares that tool as {t["capability"]}', errors)
+            elif t['authority'] == 'prohibited': fail(f'{cap} binds {cref}, which the connector prohibits', errors)
+            else:
+                cid = cref.split('/')[2]
+                if sref not in (f'system://{cid}', f"system://{CONNECTOR_SERVER.get(cid, cid)}"):
+                    fail(f'{cap} binds {cref} but system_ref {sref} is not that connector\'s system (expected system://{cid})', errors)
     for cap in set(EXCLUSIVE) & declared:
         if cap not in bound:
             fail(f'{cap} is allowed but has no capability binding; unbound external actions fail closed', errors)
