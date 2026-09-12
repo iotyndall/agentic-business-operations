@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Export Company OS roles as Claude Code subagents into a private company repo.
 
-usage: export_claude_code.py <company-contract.json> <out-dir> [--enable name,name,...]
+usage: export_claude_code.py <company-contract.json> <out-dir> [--enable name,name,...] [--marketing-profile <profile.json>]
 
 Writes:
   <out>/.claude/agents/<name>.md        subagent = role contract markdown + runtime frontmatter
@@ -25,17 +25,33 @@ def title_of(md):
         if line.startswith('# '): return line[2:].strip()
     return ''
 
-def connector_tools(manifest):
-    """Per-tool guard metadata (clearance key, pre-approved classes) from every published connector the manifest lists."""
+ROLE_KEY_TO_AGENT = {'brand_manager': 'brand-manager', 'direct_email': 'direct-email-specialist', 'paid_media': 'paid-media-specialist',
+                     'social_media': 'social-media-specialist', 'agent_relations': 'agent-relations-specialist',
+                     'content_reviewer': 'marketing-content-reviewer'}
+
+def load_connectors(manifest):
+    return [json.loads((ROOT / rel).read_text(encoding='utf-8')) for rel in manifest.get('connectors', [])]
+
+def connector_tools(connectors):
+    """Per-tool guard metadata for every tool a published connector declares. The guard fails closed on
+    any tool under a connector server that is not in this map."""
     out = {}
-    for rel in manifest.get('connectors', []):
-        c = json.loads((ROOT / rel).read_text(encoding='utf-8'))
+    for c in connectors:
         server = c['mcp']['server_name']
         for t in c['tools']:
-            if t.get('external_action') or t.get('financial_commitment') or t['authority'] in ('approval-required', 'prohibited'):
-                out[f"mcp__{server}__{t['tool']}"] = {'connector': c['id'], 'capability': t['capability'], 'authority': t['authority'],
-                    'clearance_key': t.get('clearance_key'), 'preapproved_content_classes': t.get('preapproved_content_classes', [])}
+            out[f"mcp__{server}__{t['tool']}"] = {
+                'connector': c['id'], 'capability': t['capability'], 'authority': t['authority'],
+                'owner_agents': sorted(ROLE_KEY_TO_AGENT.get(r, r) for r in t.get('owner_roles', [])),
+                'clearance_key': t.get('clearance_key'), 'preapproved_content_classes': t.get('preapproved_content_classes', []),
+                'external_action': bool(t.get('external_action') or t.get('financial_commitment')),
+                'invalidates_clearance': bool(t.get('invalidates_clearance'))}
     return out
+
+def disabled_marketing_agents(argv):
+    """Roles a private marketing profile marks enabled:false are not exported: the profile's authority decision wins."""
+    if '--marketing-profile' not in argv: return set()
+    prof = json.loads(Path(argv[argv.index('--marketing-profile') + 1]).read_text(encoding='utf-8'))
+    return {ROLE_KEY_TO_AGENT[k] for k, r in (prof.get('roles') or {}).items() if k in ROLE_KEY_TO_AGENT and not r.get('enabled')}
 
 def main(argv):
     if len(argv) < 3: print(__doc__, file=sys.stderr); return 2
@@ -44,6 +60,10 @@ def main(argv):
     if '--enable' in argv: enable = set(argv[argv.index('--enable') + 1].split(','))
     manifest = json.loads((ROOT / 'claude' / 'agent-manifest.json').read_text(encoding='utf-8'))
     departments = set(contract.get('departments', []))
+    declared_systems = {s.get('id') for s in contract.get('systems', []) if isinstance(s, dict)}
+    connectors = load_connectors(manifest)
+    connector_servers = {c['mcp']['server_name'] for c in connectors}
+    disabled = disabled_marketing_agents(argv)
     commit = framework_commit()
     agents_dir = out / '.claude' / 'agents'; agents_dir.mkdir(parents=True, exist_ok=True)
     hooks_dir = out / '.claude' / 'hooks'; hooks_dir.mkdir(parents=True, exist_ok=True)
@@ -52,6 +72,15 @@ def main(argv):
     for a in manifest['agents']:
         if a['department'] not in departments and a['department'] != 'review': continue
         if enable is not None and a['name'] not in enable: continue
+        if a['name'] in disabled: continue
+        a = dict(a)
+        # A server is exposed only if the private contract declares it as a system. Undeclared servers are stripped from
+        # the subagent's mcpServers AND explicitly denied, so a user-level Claude config cannot leak them in.
+        bound, unbound = [], []
+        for srv in a.get('mcp_servers') or []:
+            (bound if srv in declared_systems else unbound).append(srv)
+        a['mcp_servers'] = bound
+        a['deny_tool_patterns'] = list(a.get('deny_tool_patterns', [])) + [f'^mcp__{srv}__.*' for srv in unbound]
         body = (ROOT / a['role']).read_text(encoding='utf-8')
         fm = ['---', f"name: {a['name']}", f"description: {a['description']}",
               f"tools: {', '.join(a['tools'])}", f"model: {a.get('model', 'inherit')}"]
@@ -70,7 +99,8 @@ def main(argv):
                'external_action_tool_patterns': manifest['external_action_tool_patterns'],
                'ledger': manifest['ledger'], 'agents': exported,
                'clearances': manifest.get('clearances', {}), 'standing_approvals': manifest.get('standing_approvals', {}),
-               'connector_tools': connector_tools(manifest)}
+               'connector_servers': sorted(connector_servers & declared_systems),
+               'connector_tools': connector_tools([c for c in connectors if c['mcp']['server_name'] in declared_systems])}
     (out / '.agentic' / 'runtime-manifest.json').write_text(json.dumps(runtime, indent=2) + '\n', encoding='utf-8')
     settings_path = out / '.claude' / 'settings.json'
     settings = json.loads(settings_path.read_text()) if settings_path.exists() else {}

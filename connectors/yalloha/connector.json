@@ -7,55 +7,274 @@
     "signup_url": "https://www.yalloha.com",
     "docs_url": "https://www.yalloha.com/api/mcp"
   },
-  "mcp": {"server_name": "yalloha", "url": "https://www.yalloha.com/api/mcp", "auth": "oauth"},
+  "mcp": {
+    "server_name": "yalloha",
+    "url": "https://www.yalloha.com/api/mcp",
+    "auth": "oauth"
+  },
   "department": "marketing",
   "system_kind": "social",
-  "channels": ["facebook-pages", "instagram"],
+  "channels": [
+    "facebook-pages",
+    "instagram"
+  ],
   "tools": [
-    {"tool": "get_setup_status", "capability": "setup.read", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-    {"tool": "list_properties", "capability": "property.read", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-    {"tool": "get_property_details", "capability": "property.read", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-    {"tool": "get_preferences", "capability": "channel.settings_read", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-
-    {"tool": "list_pending_reviews", "capability": "ugc.consent_read", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"],
-     "notes": "Guest reviews are the consented UGC source. A review is publishable only after the reviewer clears it."},
-    {"tool": "list_all_reviews", "capability": "ugc.consent_read", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-    {"tool": "search_reviews", "capability": "ugc.consent_read", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-    {"tool": "get_review", "capability": "ugc.consent_read", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-
-    {"tool": "generate_post", "capability": "post.draft", "authority": "propose", "owner_roles": ["social_media"],
-     "notes": "Creates a draft post (image + caption) from a review. Nothing is published."},
-    {"tool": "update_caption", "capability": "post.draft", "authority": "propose", "owner_roles": ["social_media"]},
-    {"tool": "get_post", "capability": "post.read", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-    {"tool": "list_all_posts", "capability": "published.sample", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-    {"tool": "update_review_status", "capability": "post.schedule", "authority": "execute-bounded", "owner_roles": ["social_media"],
-     "notes": "Internal workflow state only (pending/ready/skipped). Not an external action."},
-
-    {"tool": "publish_post", "capability": "post.publish_bounded", "authority": "execute-bounded", "owner_roles": ["social_media"],
-     "external_action": true, "clearance_key": "postId",
-     "preapproved_content_classes": ["consented-review-repost"],
-     "notes": "Publishes to Facebook and/or Instagram. Runs only under a per-call human approval, or a standing approval for a pre-approved content class AND a reviewer clearance record for the postId."},
-
-    {"tool": "get_analytics", "capability": "analytics.read_aggregate", "authority": "observe", "owner_roles": ["social_media", "brand_manager", "content_reviewer"]},
-
-    {"tool": "update_preferences", "capability": "channel.settings_update_bounded", "authority": "approval-required", "owner_roles": ["brand_manager"],
-     "notes": "Booking URL, default hashtags, image style. Brand-level settings; proposed by the brand manager, applied only with human approval."},
-    {"tool": "update_property", "capability": "channel.settings_update_bounded", "authority": "approval-required", "owner_roles": ["brand_manager"]},
-
-    {"tool": "get_affiliate_program", "capability": "analytics.read_aggregate", "authority": "observe", "owner_roles": ["brand_manager"]},
-    {"tool": "get_affiliate_analytics", "capability": "analytics.read_aggregate", "authority": "observe", "owner_roles": ["brand_manager"]},
-    {"tool": "get_affiliate_directory", "capability": "analytics.read_aggregate", "authority": "observe", "owner_roles": ["brand_manager"]},
-    {"tool": "list_affiliates", "capability": "analytics.read_aggregate", "authority": "observe", "owner_roles": ["brand_manager"]},
-    {"tool": "list_affiliate_commissions", "capability": "analytics.read_aggregate", "authority": "observe", "owner_roles": ["brand_manager"]},
-    {"tool": "update_affiliate_program", "capability": "commitment.sign", "authority": "prohibited", "owner_roles": [],
-     "financial_commitment": true, "out_of_scope_department": "sales", "notes": "Sets commission terms. A financial commitment; no marketing role may hold it."},
-    {"tool": "update_affiliate_status", "capability": "commitment.sign", "authority": "prohibited", "owner_roles": [],
-     "financial_commitment": true, "out_of_scope_department": "sales"},
-    {"tool": "mark_commission_paid", "capability": "commitment.sign", "authority": "prohibited", "owner_roles": [],
-     "financial_commitment": true, "out_of_scope_department": "finance"},
-
-    {"tool": "get_airbnb_connect_url", "capability": "setup.read", "authority": "observe", "owner_roles": [], "notes": "Human-only onboarding step."},
-    {"tool": "get_facebook_connect_url", "capability": "setup.read", "authority": "observe", "owner_roles": []},
-    {"tool": "get_instagram_connect_url", "capability": "setup.read", "authority": "observe", "owner_roles": []}
+    {
+      "tool": "get_setup_status",
+      "capability": "setup.read",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "list_properties",
+      "capability": "property.read",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "get_property_details",
+      "capability": "property.read",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "get_preferences",
+      "capability": "channel.settings_read",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "list_pending_reviews",
+      "capability": "ugc.consent_read",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ],
+      "notes": "Guest reviews are the consented UGC source. A review is publishable only after the reviewer clears it."
+    },
+    {
+      "tool": "list_all_reviews",
+      "capability": "ugc.consent_read",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "search_reviews",
+      "capability": "ugc.consent_read",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "get_review",
+      "capability": "ugc.consent_read",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "generate_post",
+      "capability": "post.draft",
+      "authority": "propose",
+      "owner_roles": [
+        "social_media"
+      ],
+      "notes": "Creates a draft post (image + caption) from a review. Nothing is published. Denied while a clearance exists for the artifact: a cleared draft is immutable until the reviewer withdraws the clearance.",
+      "clearance_key": "reviewId",
+      "invalidates_clearance": true
+    },
+    {
+      "tool": "update_caption",
+      "capability": "post.draft",
+      "authority": "propose",
+      "owner_roles": [
+        "social_media"
+      ],
+      "clearance_key": "postId",
+      "invalidates_clearance": true,
+      "notes": "Denied while a clearance exists for the artifact: a cleared draft is immutable until the reviewer withdraws the clearance."
+    },
+    {
+      "tool": "get_post",
+      "capability": "post.read",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "list_all_posts",
+      "capability": "published.sample",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "update_review_status",
+      "capability": "post.schedule",
+      "authority": "execute-bounded",
+      "owner_roles": [
+        "social_media"
+      ],
+      "notes": "Internal workflow state only (pending/ready/skipped). Not an external action."
+    },
+    {
+      "tool": "publish_post",
+      "capability": "post.publish_bounded",
+      "authority": "execute-bounded",
+      "owner_roles": [
+        "social_media"
+      ],
+      "external_action": true,
+      "clearance_key": "postId",
+      "preapproved_content_classes": [
+        "consented-review-repost"
+      ],
+      "notes": "Publishes to Facebook and/or Instagram. Runs only under a per-call human approval, or a standing approval for a pre-approved content class AND a reviewer clearance record for the postId."
+    },
+    {
+      "tool": "get_analytics",
+      "capability": "analytics.read_aggregate",
+      "authority": "observe",
+      "owner_roles": [
+        "social_media",
+        "brand_manager",
+        "content_reviewer"
+      ]
+    },
+    {
+      "tool": "update_preferences",
+      "capability": "channel.settings_update_bounded",
+      "authority": "approval-required",
+      "owner_roles": [
+        "brand_manager"
+      ],
+      "notes": "Booking URL, default hashtags, image style. Brand-level settings; proposed by the brand manager, applied only with human approval."
+    },
+    {
+      "tool": "update_property",
+      "capability": "channel.settings_update_bounded",
+      "authority": "approval-required",
+      "owner_roles": [
+        "brand_manager"
+      ]
+    },
+    {
+      "tool": "get_affiliate_program",
+      "capability": "analytics.read_aggregate",
+      "authority": "observe",
+      "owner_roles": [
+        "brand_manager"
+      ]
+    },
+    {
+      "tool": "get_affiliate_analytics",
+      "capability": "analytics.read_aggregate",
+      "authority": "observe",
+      "owner_roles": [
+        "brand_manager"
+      ]
+    },
+    {
+      "tool": "get_affiliate_directory",
+      "capability": "analytics.read_aggregate",
+      "authority": "observe",
+      "owner_roles": [
+        "brand_manager"
+      ]
+    },
+    {
+      "tool": "list_affiliates",
+      "capability": "analytics.read_aggregate",
+      "authority": "observe",
+      "owner_roles": [
+        "brand_manager"
+      ]
+    },
+    {
+      "tool": "list_affiliate_commissions",
+      "capability": "analytics.read_aggregate",
+      "authority": "observe",
+      "owner_roles": [
+        "brand_manager"
+      ]
+    },
+    {
+      "tool": "update_affiliate_program",
+      "capability": "commitment.sign",
+      "authority": "prohibited",
+      "owner_roles": [],
+      "financial_commitment": true,
+      "out_of_scope_department": "sales",
+      "notes": "Sets commission terms. A financial commitment; no marketing role may hold it."
+    },
+    {
+      "tool": "update_affiliate_status",
+      "capability": "commitment.sign",
+      "authority": "prohibited",
+      "owner_roles": [],
+      "financial_commitment": true,
+      "out_of_scope_department": "sales"
+    },
+    {
+      "tool": "mark_commission_paid",
+      "capability": "commitment.sign",
+      "authority": "prohibited",
+      "owner_roles": [],
+      "financial_commitment": true,
+      "out_of_scope_department": "finance"
+    },
+    {
+      "tool": "get_airbnb_connect_url",
+      "capability": "setup.read",
+      "authority": "observe",
+      "owner_roles": [],
+      "notes": "Human-only onboarding step."
+    },
+    {
+      "tool": "get_facebook_connect_url",
+      "capability": "setup.read",
+      "authority": "observe",
+      "owner_roles": []
+    },
+    {
+      "tool": "get_instagram_connect_url",
+      "capability": "setup.read",
+      "authority": "observe",
+      "owner_roles": []
+    }
   ]
 }

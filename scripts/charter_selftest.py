@@ -31,7 +31,10 @@ mutate('cron without timezone', lambda c: c['trigger'].pop('timezone'))
 # runner + budget: export a runtime into a temp private repo, run the charter dry, then simulate a session spending its budget
 with tempfile.TemporaryDirectory() as td:
     repo = Path(td)
-    subprocess.run([PY, str(ROOT / 'scripts/export_claude_code.py'), str(ROOT / 'examples/synthetic-company/company-contract.json'), str(repo)], check=True, capture_output=True)
+    contract = json.loads((ROOT / 'examples/synthetic-company/company-contract.json').read_text())
+    contract['systems'].append({'id': 'yalloha', 'kind': 'social', 'write_authority': 'bounded'})
+    (repo / 'contract.json').write_text(json.dumps(contract))
+    subprocess.run([PY, str(ROOT / 'scripts/export_claude_code.py'), str(repo / 'contract.json'), str(repo)], check=True, capture_output=True)
     (repo / 'cadence').mkdir(); ch = repo / 'cadence/marketing-weekly.charter.json'; ch.write_text(json.dumps(good))
     # no standing approval on disk -> downgraded to draft-only
     r = subprocess.run([PY, str(ROOT / 'scripts/run_charter.py'), str(ch), '--repo', str(repo), '--dry-run'], capture_output=True, text=True)

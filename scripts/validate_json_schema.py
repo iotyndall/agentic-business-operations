@@ -87,6 +87,17 @@ def validate_instance(schema, value, schema_file, path='$'):
             errors.append(f'{path}: string shorter than minLength {schema["minLength"]}')
         if 'pattern' in schema and re.search(schema['pattern'], value) is None:
             errors.append(f'{path}: string does not match required pattern')
+        if schema.get('format') == 'uri' and re.fullmatch(r'https?://[A-Za-z0-9.-]+(:[0-9]+)?(/[^\s]*)?', value) is None:
+            errors.append(f'{path}: not an http(s) URI')
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        if 'minimum' in schema and value < schema['minimum']:
+            errors.append(f'{path}: below minimum {schema["minimum"]}')
+        if 'maximum' in schema and value > schema['maximum']:
+            errors.append(f'{path}: above maximum {schema["maximum"]}')
+    if 'oneOf' in schema:
+        matches = sum(1 for alt in schema['oneOf'] if not validate_instance(alt, value, schema_file, path))
+        if matches != 1:
+            errors.append(f'{path}: must match exactly one alternative, matched {matches}')
     return errors
 
 

@@ -25,6 +25,13 @@ tool → capability → authority → owner roles → external? financial? → c
 2. **Standing approval + clearance** — `.agentic/approvals/standing/<tool>.json` written by the human for a content class, valid only when the reviewer role has written `.agentic/ledger/reviews/clearances/<artifact>.json` with a matching `content_class`. The author role cannot write clearances.
 3. **Otherwise: deny.**
 
+And regardless of approvals:
+
+- A connector server is exposed to a subagent only if the private company contract declares it under `systems`. Undeclared servers are stripped from `mcpServers` and explicitly denied, so a user-level Claude configuration cannot leak one in.
+- Any tool under a declared connector server that is **not in the published map** is denied — a vendor adding or renaming a tool cannot widen an agent's authority. The main session may only call observe-authority tools.
+- A **cleared artifact is immutable**: tools the connector marks `invalidates_clearance` (edit caption, regenerate) are denied while a clearance exists for that artifact, so the reviewer's clearance always covers what gets published.
+- `max_per_day` on a standing approval is enforced with a durable per-tool daily counter.
+
 ## Available connectors
 
 | id | vendor | department | fulfils |

@@ -3,58 +3,261 @@
  "description": "Maps Company OS role contracts to Claude Code subagents. The role markdown is the subagent system prompt verbatim; this file adds only the runtime binding (tools, model tier, deny patterns).",
  "main_session_role": "chief-of-staff",
  "agents": [
-  {"role": "roles/strategy-lead.md", "name": "strategy-lead", "department": "strategy",
+  {
+   "role": "roles/strategy-lead.md",
+   "name": "strategy-lead",
+   "department": "strategy",
    "description": "Frames strategic questions, synthesizes analyst outputs into a decision record with at least two options. Never decides. Use after analysts have written their handoff artifacts.",
-   "tools": ["Read", "Glob", "Grep", "Write", "Edit"], "model": "opus", "mcp_servers": [], "deny_tool_patterns": ["^mcp__.*"]},
-  {"role": "roles/market-intelligence-analyst.md", "name": "market-intelligence-analyst", "department": "strategy",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write",
+    "Edit"
+   ],
+   "model": "opus",
+   "mcp_servers": [],
+   "deny_tool_patterns": [
+    "^mcp__.*"
+   ]
+  },
+  {
+   "role": "roles/market-intelligence-analyst.md",
+   "name": "market-intelligence-analyst",
+   "department": "strategy",
    "description": "Market position, competitor landscape, and external research from rated sources. Use for any commission needing outside-in evidence.",
-   "tools": ["Read", "Glob", "Grep", "Write", "WebSearch", "WebFetch"], "model": "sonnet", "mcp_servers": ["pricelabs"],
-   "deny_tool_patterns": ["^mcp__.*(update|create|delete|accept|send|publish|write|set_|post).*", "^mcp__yalloha__.*"]},
-  {"role": "roles/business-performance-analyst.md", "name": "business-performance-analyst", "department": "strategy",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write",
+    "WebSearch",
+    "WebFetch"
+   ],
+   "model": "sonnet",
+   "mcp_servers": [
+    "pricelabs"
+   ],
+   "deny_tool_patterns": [
+    "^mcp__.*(update|create|delete|accept|send|publish|write|set_|post).*",
+    "^mcp__yalloha__.*"
+   ]
+  },
+  {
+   "role": "roles/business-performance-analyst.md",
+   "name": "business-performance-analyst",
+   "department": "strategy",
    "description": "Measures performance from systems of record under catalog definitions; unit economics, variance, cohorts. Use for any commission needing the company's own numbers.",
-   "tools": ["Read", "Glob", "Grep", "Write"], "model": "sonnet", "mcp_servers": ["quickbooks", "hospitable", "pricelabs"],
-   "deny_tool_patterns": ["^mcp__.*(update|create|delete|accept|send|publish|write|set_|post|cancel|submit|lock|unlock).*", "^mcp__yalloha__.*"]},
-  {"role": "roles/long-range-planner.md", "name": "long-range-planner", "department": "strategy",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write"
+   ],
+   "model": "sonnet",
+   "mcp_servers": [
+    "quickbooks",
+    "hospitable",
+    "pricelabs"
+   ],
+   "deny_tool_patterns": [
+    "^mcp__.*(update|create|delete|accept|send|publish|write|set_|post|cancel|submit|lock|unlock).*",
+    "^mcp__yalloha__.*"
+   ]
+  },
+  {
+   "role": "roles/long-range-planner.md",
+   "name": "long-range-planner",
+   "department": "strategy",
    "description": "Multi-year scenarios with sensitivities, assumptions register, capital and resourcing proposals, strategic risk register. Use when a commission has a horizon beyond four quarters.",
-   "tools": ["Read", "Glob", "Grep", "Write"], "model": "opus", "mcp_servers": [], "deny_tool_patterns": ["^mcp__.*"]},
-  {"role": "roles/corporate-development-analyst.md", "name": "corporate-development-analyst", "department": "strategy",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write"
+   ],
+   "model": "opus",
+   "mcp_servers": [],
+   "deny_tool_patterns": [
+    "^mcp__.*"
+   ]
+  },
+  {
+   "role": "roles/corporate-development-analyst.md",
+   "name": "corporate-development-analyst",
+   "department": "strategy",
    "description": "Exit readiness, valuation range, buyer landscape, diligence gaps, inbound-interest logging. Operates only inside .agentic/ledger/corpdev/. Never contacts anyone.",
-   "tools": ["Read", "Glob", "Grep", "Write"], "model": "opus", "mcp_servers": [],
-   "deny_tool_patterns": ["^mcp__.*", "^WebSearch$", "^WebFetch$", "^Bash$"], "confidential_scope": ".agentic/ledger/corpdev/"},
-  {"role": "roles/brand-manager.md", "name": "brand-manager", "department": "marketing",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write"
+   ],
+   "model": "opus",
+   "mcp_servers": [],
+   "deny_tool_patterns": [
+    "^mcp__.*",
+    "^WebSearch$",
+    "^WebFetch$",
+    "^Bash$"
+   ],
+   "confidential_scope": ".agentic/ledger/corpdev/"
+  },
+  {
+   "role": "roles/brand-manager.md",
+   "name": "brand-manager",
+   "department": "marketing",
    "description": "Owns positioning, brand voice, claims standard and campaign portfolio. Authors briefs and proposes channel settings; never publishes, sends, or spends.",
-   "tools": ["Read", "Glob", "Grep", "Write", "Edit"], "model": "opus", "mcp_servers": ["yalloha"],
-   "deny_tool_patterns": ["^mcp__yalloha__(generate_post|update_caption|update_review_status|publish_post|update_affiliate_program|update_affiliate_status|mark_commission_paid|get_airbnb_connect_url|get_facebook_connect_url|get_instagram_connect_url)$"]},
-  {"role": "roles/direct-email-specialist.md", "name": "direct-email-specialist", "department": "marketing",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write",
+    "Edit"
+   ],
+   "model": "opus",
+   "mcp_servers": [
+    "yalloha"
+   ],
+   "deny_tool_patterns": [
+    "^mcp__yalloha__(generate_post|update_caption|update_review_status|publish_post|update_affiliate_program|update_affiliate_status|mark_commission_paid|get_airbnb_connect_url|get_facebook_connect_url|get_instagram_connect_url)$"
+   ]
+  },
+  {
+   "role": "roles/direct-email-specialist.md",
+   "name": "direct-email-specialist",
+   "department": "marketing",
    "description": "Lifecycle and promotional email to consenting audiences. Drafts and proposes; every send is approval-required.",
-   "tools": ["Read", "Glob", "Grep", "Write"], "model": "sonnet", "mcp_servers": [], "deny_tool_patterns": ["^mcp__.*"]},
-  {"role": "roles/paid-media-specialist.md", "name": "paid-media-specialist", "department": "marketing",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write"
+   ],
+   "model": "sonnet",
+   "mcp_servers": [],
+   "deny_tool_patterns": [
+    "^mcp__.*"
+   ]
+  },
+  {
+   "role": "roles/paid-media-specialist.md",
+   "name": "paid-media-specialist",
+   "department": "marketing",
    "description": "Paid acquisition inside a Finance-owned budget envelope. Drafts campaigns and targeting; spend is bounded by envelope and never self-created.",
-   "tools": ["Read", "Glob", "Grep", "Write"], "model": "sonnet", "mcp_servers": [], "deny_tool_patterns": ["^mcp__.*"]},
-  {"role": "roles/social-media-specialist.md", "name": "social-media-specialist", "department": "marketing",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write"
+   ],
+   "model": "sonnet",
+   "mcp_servers": [],
+   "deny_tool_patterns": [
+    "^mcp__.*"
+   ]
+  },
+  {
+   "role": "roles/social-media-specialist.md",
+   "name": "social-media-specialist",
+   "department": "marketing",
    "description": "Owned-channel social publishing. Turns consented guest reviews into post drafts, requests review, and publishes only cleared content of a pre-approved class or under a per-call approval. Routes service/legal/press to the accountable function.",
-   "tools": ["Read", "Glob", "Grep", "Write", "Edit"], "model": "sonnet", "mcp_servers": ["yalloha"],
-   "deny_tool_patterns": ["^mcp__yalloha__(update_preferences|update_property|update_affiliate_program|update_affiliate_status|mark_commission_paid|get_affiliate_program|get_affiliate_analytics|get_affiliate_directory|list_affiliates|list_affiliate_commissions|get_airbnb_connect_url|get_facebook_connect_url|get_instagram_connect_url)$"]},
-  {"role": "roles/agent-relations-specialist.md", "name": "agent-relations-specialist", "department": "marketing",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write",
+    "Edit"
+   ],
+   "model": "sonnet",
+   "mcp_servers": [
+    "yalloha"
+   ],
+   "deny_tool_patterns": [
+    "^mcp__yalloha__(update_preferences|update_property|update_affiliate_program|update_affiliate_status|mark_commission_paid|get_affiliate_program|get_affiliate_analytics|get_affiliate_directory|list_affiliates|list_affiliate_commissions|get_airbnb_connect_url|get_facebook_connect_url|get_instagram_connect_url)$"
+   ]
+  },
+  {
+   "role": "roles/agent-relations-specialist.md",
+   "name": "agent-relations-specialist",
+   "department": "marketing",
    "description": "Business-to-agent surface: agent cards, structured facts, bounded negotiation inside an offer envelope. Never injects instructions into or executes commitments with a counterpart agent.",
-   "tools": ["Read", "Glob", "Grep", "Write", "WebFetch"], "model": "sonnet", "mcp_servers": [], "deny_tool_patterns": ["^mcp__.*"]},
-  {"role": "roles/marketing-content-reviewer.md", "name": "marketing-content-reviewer", "department": "marketing",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write",
+    "WebFetch"
+   ],
+   "model": "sonnet",
+   "mcp_servers": [],
+   "deny_tool_patterns": [
+    "^mcp__.*"
+   ]
+  },
+  {
+   "role": "roles/marketing-content-reviewer.md",
+   "name": "marketing-content-reviewer",
+   "department": "marketing",
    "description": "Independently gates content and claims before release and samples afterward. Read-only on channels; writes clearance records. Cannot author or publish.",
-   "tools": ["Read", "Glob", "Grep", "Write"], "model": "opus", "mcp_servers": ["yalloha"],
-   "deny_tool_patterns": ["^mcp__yalloha__(generate_post|update_caption|update_review_status|publish_post|update_preferences|update_property|update_affiliate_program|update_affiliate_status|mark_commission_paid|get_affiliate_program|get_affiliate_analytics|get_affiliate_directory|list_affiliates|list_affiliate_commissions|get_airbnb_connect_url|get_facebook_connect_url|get_instagram_connect_url)$", "^Bash$"],
-   "review_independence": true, "clearance_writer": true},
-  {"role": "roles/adversarial-reviewer.md", "name": "adversarial-reviewer", "department": "review",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write"
+   ],
+   "model": "opus",
+   "mcp_servers": [
+    "yalloha"
+   ],
+   "deny_tool_patterns": [
+    "^mcp__yalloha__(generate_post|update_caption|update_review_status|publish_post|update_preferences|update_property|update_affiliate_program|update_affiliate_status|mark_commission_paid|get_affiliate_program|get_affiliate_analytics|get_affiliate_directory|list_affiliates|list_affiliate_commissions|get_airbnb_connect_url|get_facebook_connect_url|get_instagram_connect_url)$",
+    "^Bash$"
+   ],
+   "review_independence": true,
+   "clearance_writer": true
+  },
+  {
+   "role": "roles/adversarial-reviewer.md",
+   "name": "adversarial-reviewer",
+   "department": "review",
    "description": "Attacks a recommendation's evidence, assumptions, option set, and producer incentives. Run before any decision record is delivered.",
-   "tools": ["Read", "Glob", "Grep", "Write"], "model": "opus", "mcp_servers": [], "deny_tool_patterns": ["^mcp__.*", "^Bash$"], "review_independence": true}
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write"
+   ],
+   "model": "opus",
+   "mcp_servers": [],
+   "deny_tool_patterns": [
+    "^mcp__.*",
+    "^Bash$"
+   ],
+   "review_independence": true
+  }
  ],
- "ledger": {"root": ".agentic/ledger", "events": ".agentic/ledger/events.jsonl", "decisions": ".agentic/ledger/decisions", "decision_draft_suffix": ".draft.json"},
+ "ledger": {
+  "root": ".agentic/ledger",
+  "events": ".agentic/ledger/events.jsonl",
+  "decisions": ".agentic/ledger/decisions",
+  "decision_draft_suffix": ".draft.json"
+ },
  "external_action_tool_patterns": [
   "^mcp__[a-z0-9_-]+?__(send|publish|reply|post|email|message|create_draft|forward|submit|accept|negotiate|pay|transfer|charge|refund|delete|cancel)(_|$)",
   "^mcp__[a-z0-9_-]+?__.*_(send|publish|reply|email|message|forward|submit|accept|negotiate|pay|transfer|charge|refund|delete|cancel)$",
   "^mcp__(gmail|slack|twilio|sendgrid|stripe|uber)__.*",
   "^mcp__yalloha__(publish_post|update_affiliate_program|update_affiliate_status|mark_commission_paid)$"
  ],
- "connectors": ["connectors/yalloha/connector.json"],
- "clearances": {"root": ".agentic/ledger/reviews/clearances", "description": "Reviewer-written records keyed by artifact id. A standing approval for a content class only unlocks an external action whose clearance_key value has a clearance with matching content_class."},
- "standing_approvals": {"root": ".agentic/approvals/standing", "description": "Human-written per-tool standing approvals: {status, approved_by, expires, content_classes, clearance_key, max_per_day}."}
+ "connectors": [
+  "connectors/yalloha/connector.json"
+ ],
+ "clearances": {
+  "root": ".agentic/ledger/reviews/clearances",
+  "description": "Reviewer-written records keyed by artifact id. A standing approval for a content class only unlocks an external action whose clearance_key value has a clearance with matching content_class."
+ },
+ "standing_approvals": {
+  "root": ".agentic/approvals/standing",
+  "description": "Human-written per-tool standing approvals: {status, approved_by, expires, content_classes, clearance_key, max_per_day}. max_per_day is enforced by the guard with a durable per-tool daily counter at .agentic/approvals/standing/<tool>.counter.json."
+ }
 }

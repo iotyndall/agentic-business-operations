@@ -18,8 +18,27 @@ def guard(evt, cwd, mode='pre'):
 failures = []
 with tempfile.TemporaryDirectory() as td:
     out = Path(td)
-    rc, so, se = run([str(ROOT / 'scripts/export_claude_code.py'), str(ROOT / 'examples/synthetic-company/company-contract.json'), str(out)])
+    # A private contract that declares the connector servers as systems (the synthetic company does not).
+    contract = json.loads((ROOT / 'examples/synthetic-company/company-contract.json').read_text())
+    contract['systems'] += [{'id': s, 'kind': 'external', 'write_authority': 'bounded'} for s in ('yalloha', 'quickbooks', 'hospitable', 'pricelabs')]
+    cpath = out / 'contract.json'; cpath.write_text(json.dumps(contract))
+    rc, so, se = run([str(ROOT / 'scripts/export_claude_code.py'), str(cpath), str(out)])
     if rc != 0: failures.append(f'export failed: {se}')
+    # Undeclared systems are stripped AND denied: export the plain synthetic contract elsewhere and check.
+    with tempfile.TemporaryDirectory() as td2:
+        run([str(ROOT / 'scripts/export_claude_code.py'), str(ROOT / 'examples/synthetic-company/company-contract.json'), td2])
+        sm = (Path(td2) / '.claude/agents/social-media-specialist.md').read_text()
+        if 'mcpServers' in sm.split('---', 2)[1]: failures.append('undeclared yalloha system was exported into mcpServers')
+        rm = json.loads((Path(td2) / '.agentic/runtime-manifest.json').read_text())
+        sa = next(a for a in rm['agents'] if a['name'] == 'social-media-specialist')
+        if not any(p == '^mcp__yalloha__.*' for p in sa['deny_tool_patterns']): failures.append('undeclared yalloha system is not denied')
+        if rm['connector_servers']: failures.append('connector_servers should be empty when no system is declared')
+    # Disabled roles in a marketing profile are not exported.
+    with tempfile.TemporaryDirectory() as td3:
+        run([str(ROOT / 'scripts/export_claude_code.py'), str(cpath), td3, '--marketing-profile', str(ROOT / 'examples/yalloha-host/marketing-profile.json')])
+        got = sorted(p.stem for p in (Path(td3) / '.claude/agents').glob('*.md'))
+        for gone in ('direct-email-specialist', 'paid-media-specialist', 'agent-relations-specialist'):
+            if gone in got: failures.append(f'{gone} exported despite enabled:false in the marketing profile')
     agents = sorted(p.stem for p in (out / '.claude/agents').glob('*.md'))
     expected = ['adversarial-reviewer', 'agent-relations-specialist', 'brand-manager', 'business-performance-analyst', 'corporate-development-analyst', 'direct-email-specialist', 'long-range-planner', 'market-intelligence-analyst', 'marketing-content-reviewer', 'paid-media-specialist', 'social-media-specialist', 'strategy-lead']
     if agents != expected: failures.append(f'exported agents {agents} != {expected}')
@@ -94,6 +113,16 @@ with tempfile.TemporaryDirectory() as td:
     (cwd / '.agentic/approvals').mkdir(parents=True, exist_ok=True)
     (cwd / f'.agentic/approvals/{d}.json').write_text(json.dumps({'status': 'approved', 'approved_by': 'human@example'}))
     check('per-call human token publishes even with expired standing approval', ev(f'{Y}publish_post', pub, 'social-media-specialist'), False)
+    # Codex findings
+    check('unlisted vendor tool under a connector server fails closed', ev(f'{Y}set_booking_url', {'url': 'x'}, 'social-media-specialist'), True)
+    check('main session may call an observe tool on the connector', ev(f'{Y}list_properties', {}), False)
+    check('main session may not draft on the connector', ev(f'{Y}generate_post', {'reviewId': 'r1'}), True)
+    check('cleared post cannot be edited', ev(f'{Y}update_caption', {'postId': 'post-123', 'caption': 'changed'}, 'social-media-specialist'), True)
+    check('uncleared post can be edited', ev(f'{Y}update_caption', {'postId': 'post-777', 'caption': 'x'}, 'social-media-specialist'), False)
+    (st_dir / f'{Y}publish_post.json').write_text(json.dumps({'status': 'approved', 'approved_by': 'human@example', 'expires': '2999-01-01', 'content_classes': ['consented-review-repost'], 'max_per_day': 1}))
+    (cwd / f'.agentic/approvals/{d}.json').unlink()
+    check('first publish under max_per_day=1 allowed', ev(f'{Y}publish_post', pub, 'social-media-specialist'), False)
+    check('second publish same day denied by max_per_day', ev(f'{Y}publish_post', pub, 'social-media-specialist'), True)
     for name, evt, should_deny in cases:
         if evt is None: continue
         denied, out_text = guard(evt, cwd)

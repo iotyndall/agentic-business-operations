@@ -196,7 +196,7 @@
   {
    "capability": "platform_policy.read",
    "system_ref": "system://yalloha",
-   "connector_ref": "connector://yalloha/get_property_details",
+   "connector_ref": "config://policy/meta-platform-policy",
    "authority": "observe"
   },
   {

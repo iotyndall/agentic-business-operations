@@ -20,7 +20,8 @@ What the guard denies, proven in `scripts/claude_export_selftest.py`:
 - publish with no approval, no clearance, a clearance for a different class, or an expired standing approval;
 - the reviewer drafting or publishing; the specialist writing its own clearance;
 - the specialist changing brand settings; anyone in marketing touching affiliate commissions;
-- any non-marketing role calling Yalloha at all.
+- any non-marketing role calling Yalloha at all;
+- editing a post after the reviewer cleared it; any Yalloha tool not in the published map; publishing past `max_per_day`.
 
 ## Setup (about ten minutes)
 
@@ -34,7 +35,7 @@ What the guard denies, proven in `scripts/claude_export_selftest.py`:
     "content_classes": ["consented-review-repost"], "clearance_key": "postId"}
    ```
    Omit this file and every publish needs a per-call token instead.
-6. `bash scripts/bootstrap.sh` then `claude`. Ask: *"Turn this week's five-star reviews into posts and get them cleared."*
+6. `bash scripts/bootstrap.sh` then `claude`. Bootstrap passes `.agentic/marketing-profile.json` to the exporter, so roles marked `enabled: false` are not installed. Ask: *"Turn this week's five-star reviews into posts and get them cleared."*
 
 ## What the roles hold on Yalloha
 

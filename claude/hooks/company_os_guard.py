@@ -77,10 +77,26 @@ def external_action_allowed(m, cwd, tool, tool_input):
                 try: c = json.loads(cl.read_text()) if cl.exists() else None
                 except Exception: c = None
                 if isinstance(c, dict) and c.get('cleared') is True and c.get('content_class') in classes and c.get('reviewer'):
+                    over = charge_daily_cap(standing, sa, tool)
+                    if over: return False, over
                     return True, ''
                 return False, f'{tool} on {key}={art} needs a reviewer clearance with content_class in {sorted(classes)} at {cl}'
             return False, f'standing approval for {tool} does not cover this content class or the call lacks {key}'
     return False, f'external action {tool} requires a human approval token at .agentic/approvals/{digest}.json'
+
+def charge_daily_cap(standing_path, sa, tool):
+    """Enforce max_per_day on a standing approval with a durable per-tool counter beside the approval file."""
+    cap = sa.get('max_per_day')
+    if cap is None: return None
+    if not isinstance(cap, int) or cap < 0: return f'standing approval for {tool} has a malformed max_per_day; denying'
+    today = time.strftime('%Y-%m-%d', time.gmtime())
+    counter = standing_path.with_suffix('.counter.json')
+    try: c = json.loads(counter.read_text()) if counter.exists() else {}
+    except Exception: return f'daily counter for {tool} is unreadable; denying'
+    used = c.get('count', 0) if c.get('date') == today else 0
+    if used >= cap: return f'standing approval for {tool} has reached max_per_day ({cap}) for {today}'
+    counter.write_text(json.dumps({'date': today, 'count': used + 1}))
+    return None
 
 def charge_run_budget(cwd, tool):
     """When a charter run is active, every allowed external action consumes one unit of its budget. Fails closed on a malformed file."""
@@ -123,6 +139,26 @@ def pre(evt):
     if role:
         for pat in role.get('deny_tool_patterns', []):
             if re.search(pat, tool): return deny(f"role {agent} may not use {tool}")
+    # 2b. Connector servers fail closed: a tool under a declared connector server must be in the published map and granted
+    #     to the acting role (the main session may only use observe-authority tools). New/renamed vendor tools are denied.
+    mt = re.match(r'^mcp__([a-z0-9_-]+?)__', tool)
+    if mt and mt.group(1) in (m.get('connector_servers') or []):
+        spec = (m.get('connector_tools') or {}).get(tool)
+        if spec is None: return deny(f'{tool} is not in the published connector map for {mt.group(1)}; failing closed')
+        if agent:
+            if agent not in spec.get('owner_agents', []): return deny(f'{tool} is not granted to {agent} by the connector')
+        elif spec.get('authority') != 'observe':
+            return deny(f'{tool} may not be called from the main session; delegate to a role that holds it')
+        # 2c. A cleared artifact is immutable: a tool that changes it is denied while its clearance stands.
+        if spec.get('invalidates_clearance') and spec.get('clearance_key'):
+            art = str(tool_input.get(spec['clearance_key'], '')).strip()
+            if art and re.fullmatch(r'[A-Za-z0-9._-]+', art):
+                cl = Path(cwd) / (m.get('clearances', {}).get('root') or '.agentic/ledger/reviews/clearances') / f'{art}.json'
+                if cl.exists():
+                    try: c = json.loads(cl.read_text())
+                    except Exception: c = {'cleared': True}
+                    if c.get('cleared') is True:
+                        return deny(f'{art} is cleared; edits after clearance are not allowed. The reviewer must withdraw the clearance first')
     # 3. Confidential scopes: only the owning role reads or writes inside them.
     p = path_of(tool_input).replace('\\', '/')
     if p:
