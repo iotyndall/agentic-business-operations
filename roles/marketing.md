@@ -26,5 +26,8 @@ Before material campaigns, a separate reviewer challenges problem definition, au
 ## Red lines
 No fabricated testimonials, results, or engagement; no unsupported legal, health, or financial claims; no contact without consent; no targeting on protected characteristics; no spending or publishing outside a bounded approval.
 
+## Private binding
+A private company binds these roles to real channels, platforms, budget envelopes, content, and connectors through a marketing profile validated by `schemas/marketing-profile.schema.json` and `scripts/validate_marketing_profile.py`. See `examples/synthetic-company/marketing-profile.json`.
+
 ## Guardrails
 See `policies/marketing-guardrails.md`.

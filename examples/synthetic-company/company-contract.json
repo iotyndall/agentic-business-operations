@@ -1,12 +1,70 @@
 {
   "version": 1,
-  "company": {"id": "synthetic-co", "name": "SyntheticCo", "mission": "Provide a synthetic environment for testing governed business agents."},
-  "departments": ["chief-of-staff", "sales", "marketing", "service", "operations", "legal", "finance", "product"],
-  "authority": {"external_action_default": "deny", "financial_commitment_default": "deny", "bounded_actions": ["draft-only-synthetic-response"]},
-  "data": {"private_by_default": true, "allowed_context_refs": ["synthetic://catalog", "synthetic://crm", "synthetic://policies"]},
+  "company": {
+    "id": "synthetic-co",
+    "name": "SyntheticCo",
+    "mission": "Provide a synthetic environment for testing governed business agents."
+  },
+  "departments": [
+    "chief-of-staff",
+    "sales",
+    "marketing",
+    "service",
+    "operations",
+    "legal",
+    "finance",
+    "product"
+  ],
+  "authority": {
+    "external_action_default": "deny",
+    "financial_commitment_default": "deny",
+    "bounded_actions": [
+      "draft-only-synthetic-response"
+    ]
+  },
+  "data": {
+    "private_by_default": true,
+    "allowed_context_refs": [
+      "synthetic://catalog",
+      "synthetic://crm",
+      "synthetic://policies"
+    ]
+  },
   "systems": [
-    {"id": "synthetic-crm", "kind": "crm", "write_authority": "none"},
-    {"id": "synthetic-helpdesk", "kind": "service", "write_authority": "none"},
-    {"id": "synthetic-ledger", "kind": "finance", "write_authority": "none"}
+    {
+      "id": "synthetic-crm",
+      "kind": "crm",
+      "write_authority": "none"
+    },
+    {
+      "id": "synthetic-helpdesk",
+      "kind": "service",
+      "write_authority": "none"
+    },
+    {
+      "id": "synthetic-ledger",
+      "kind": "finance",
+      "write_authority": "none"
+    },
+    {
+      "id": "synthetic-social",
+      "kind": "social",
+      "write_authority": "bounded"
+    },
+    {
+      "id": "synthetic-ads",
+      "kind": "advertising",
+      "write_authority": "bounded"
+    },
+    {
+      "id": "synthetic-esp",
+      "kind": "email",
+      "write_authority": "approval-required"
+    },
+    {
+      "id": "synthetic-content",
+      "kind": "content",
+      "write_authority": "bounded"
+    }
   ]
 }
