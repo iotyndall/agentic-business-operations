@@ -27,7 +27,7 @@ for name in required_schemas:
         try: json.loads(p.read_text())
         except Exception as exc: errors.append(f'invalid JSON {p}: {exc}')
 
-for rel in [
+for rel in sorted(str(q.relative_to(ROOT)) for d in ('schemas','examples','templates') for q in (ROOT/d).rglob('*.json')) + [
     'examples/synthetic-company/company-contract.json',
     'examples/synthetic-company/scenarios.json',
     'examples/synthetic-company/contact-center-profile.json',
@@ -62,6 +62,23 @@ for p in ROOT.rglob('*'):
         if domain not in allowed_email_domains:
             errors.append(f'non-synthetic email in {p.relative_to(ROOT)}: {addr}')
 
+# Workflow supply-chain invariants: immutable SHA pins and non-persistent CI credentials.
+uses_re=re.compile(r'uses:\s*([^\s#]+)')
+workflow_files=list((ROOT/'.github'/'workflows').glob('*.yml'))+list((ROOT/'templates'/'private-company'/'.github'/'workflows').glob('*.yml'))
+for wf in workflow_files:
+    text=wf.read_text(encoding='utf-8')
+    for ref in uses_re.findall(text):
+        if not re.search(r'@[0-9a-f]{40}$', ref):
+            errors.append(f'{wf.relative_to(ROOT)}: Action not pinned to immutable commit SHA: {ref}')
+    if 'persist-credentials: false' not in text:
+        errors.append(f'{wf.relative_to(ROOT)}: checkout must set persist-credentials: false')
+
+# Every executable policy script must at least compile.
+import py_compile
+for s in (ROOT/'scripts').glob('*.py'):
+    try: py_compile.compile(str(s), doraise=True)
+    except Exception as exc: errors.append(f'script does not compile {s.relative_to(ROOT)}: {exc}')
+
 constitution=(ROOT/'policies'/'company-constitution.md').read_text()
 for phrase in ['High autonomy does not imply high authority', 'Execution authority must be explicit']:
     if phrase not in constitution: errors.append(f'constitution invariant missing: {phrase}')
@@ -69,4 +86,4 @@ for phrase in ['High autonomy does not imply high authority', 'Execution authori
 if errors:
     for e in errors: print(f'ERROR: {e}')
     sys.exit(1)
-print('PASS: company OS structure, JSON assets and public-safety invariants')
+print('PASS: company OS structure, JSON assets, public-safety and workflow supply-chain invariants')

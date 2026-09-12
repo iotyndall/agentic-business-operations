@@ -2,57 +2,33 @@ name: Company OS CI
 
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/README.md'
+      - 'LICENSE'
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/README.md'
+      - 'LICENSE'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
-          fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.12'
-      - name: Validate schemas, roles, examples and public safety
-        run: python scripts/validate_repo.py
-      - name: Apply Company OS schema to example contracts
-        run: |
-          python scripts/validate_json_schema.py schemas/company-contract.schema.json examples/synthetic-company/company-contract.json
-          python scripts/validate_json_schema.py schemas/company-contract.schema.json templates/private-company/business-ops.example.json
-          python scripts/validate_json_schema.py schemas/contact-center-profile.schema.json examples/synthetic-company/contact-center-profile.json
-      - name: Validate semantic company invariants
-        run: python scripts/validate_company_contract.py examples/synthetic-company/company-contract.json templates/private-company/business-ops.example.json
-      - name: Validate contact center capability boundaries
-        run: python scripts/validate_contact_center_profile.py examples/synthetic-company/company-contract.json examples/synthetic-company/contact-center-profile.json
-      - name: Exercise provider/model routing
-        run: python scripts/model_selection_selftest.py
-      - name: Exercise private-framework trust boundary
-        run: python scripts/contract_hardening_selftest.py
-      - name: Evaluate synthetic company routing and authority
-        run: python scripts/evaluate_scenarios.py
-      - name: Parse every JSON asset
-        shell: bash
-        run: |
-          set -euo pipefail
-          find schemas examples templates -type f -name '*.json' -print0 | while IFS= read -r -d '' f; do python -m json.tool "$f" >/dev/null; done
-      - name: Compile executable policy scripts
-        run: python -m py_compile scripts/*.py
-      - name: Require immutable public Actions and non-persistent CI credentials
-        shell: bash
-        run: |
-          set -euo pipefail
-          bad=$(grep -RhoE 'uses: [^ ]+@[^ #]+' .github/workflows templates/private-company/.github/workflows | grep -Ev '@[0-9a-f]{40}$' || true)
-          if [ -n "$bad" ]; then
-            echo "$bad"
-            echo '::error::All public Actions must be pinned to immutable commit SHAs.'
-            exit 1
-          fi
-          grep -Fq 'persist-credentials: false' .github/workflows/ci.yml
-          grep -Fq 'persist-credentials: false' templates/private-company/.github/workflows/business-ops-contract.yml
+      # All gates are stdlib-only; the runner's system Python (3.12) is sufficient.
+      - name: Run all deterministic CI gates
+        run: python3 scripts/ci.py
