@@ -10,6 +10,7 @@
     "departments": {"type": "array", "uniqueItems": true, "items": {"enum": ["chief-of-staff", "sales", "marketing", "service", "operations", "legal", "finance", "product"]}},
     "authority": {"type": "object", "required": ["external_action_default", "financial_commitment_default"], "properties": {"external_action_default": {"enum": ["deny", "approval-required"]}, "financial_commitment_default": {"enum": ["deny", "approval-required"]}, "bounded_actions": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false},
     "data": {"type": "object", "required": ["private_by_default"], "properties": {"private_by_default": {"type": "boolean", "const": true}, "allowed_context_refs": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false},
-    "systems": {"type": "array", "items": {"type": "object", "required": ["id", "kind", "write_authority"], "properties": {"id": {"type": "string"}, "kind": {"type": "string"}, "write_authority": {"enum": ["none", "bounded", "approval-required"]}}, "additionalProperties": false}}
+    "systems": {"type": "array", "items": {"type": "object", "required": ["id", "kind", "write_authority"], "properties": {"id": {"type": "string"}, "kind": {"type": "string"}, "write_authority": {"enum": ["none", "bounded", "approval-required"]}}, "additionalProperties": false}},
+    "model_policy": {"$ref": "model-policy.schema.json"}
   }
 }

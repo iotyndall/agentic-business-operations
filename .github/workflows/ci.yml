@@ -21,6 +21,8 @@ jobs:
         run: python scripts/validate_repo.py
       - name: Validate company contracts
         run: python scripts/validate_company_contract.py examples/synthetic-company/company-contract.json templates/private-company/business-ops.example.json
+      - name: Exercise provider/model routing
+        run: python scripts/model_selection_selftest.py
       - name: Evaluate synthetic company routing and authority
         run: python scripts/evaluate_scenarios.py
       - name: Parse every JSON asset

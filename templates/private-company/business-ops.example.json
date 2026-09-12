@@ -4,5 +4,30 @@
   "departments": ["chief-of-staff", "sales", "marketing", "service", "operations", "legal", "finance", "product"],
   "authority": {"external_action_default": "approval-required", "financial_commitment_default": "approval-required", "bounded_actions": []},
   "data": {"private_by_default": true, "allowed_context_refs": []},
-  "systems": []
+  "systems": [],
+  "model_policy": {
+    "selection": {
+      "company_default_model": "openai-primary",
+      "allow_user_override": true,
+      "fallback_on": ["rate-limit", "timeout", "provider-error", "capacity"],
+      "review_independence": {"different_model_required": true, "different_provider_required": false}
+    },
+    "providers": [
+      {"id": "openai", "kind": "openai", "credential_ref": "secret://OPENAI_API_KEY", "enabled": true},
+      {"id": "anthropic", "kind": "anthropic", "credential_ref": "secret://ANTHROPIC_API_KEY", "enabled": true},
+      {"id": "xai", "kind": "xai", "credential_ref": "secret://XAI_API_KEY", "enabled": true},
+      {"id": "openrouter", "kind": "openrouter", "credential_ref": "secret://OPENROUTER_API_KEY", "enabled": true}
+    ],
+    "models": [
+      {"id": "openai-primary", "provider": "openai", "model": "replace-with-openai-model-id", "enabled": true, "execution_modes": ["interactive", "batch"], "capabilities": ["text", "reasoning", "tools", "structured-output"], "cost_tier": "premium", "latency_tier": "standard", "quality_tier": "frontier"},
+      {"id": "anthropic-review", "provider": "anthropic", "model": "replace-with-anthropic-model-id", "enabled": true, "execution_modes": ["interactive", "batch"], "capabilities": ["text", "reasoning", "tools", "structured-output"], "cost_tier": "premium", "latency_tier": "standard", "quality_tier": "frontier"},
+      {"id": "xai-fast", "provider": "xai", "model": "replace-with-xai-model-id", "enabled": true, "execution_modes": ["interactive"], "capabilities": ["text", "reasoning", "tools", "structured-output"], "cost_tier": "standard", "latency_tier": "fast", "quality_tier": "high"},
+      {"id": "openrouter-economy", "provider": "openrouter", "model": "replace-with-openrouter-model-id", "enabled": true, "execution_modes": ["interactive", "batch"], "capabilities": ["text", "structured-output"], "cost_tier": "economy", "latency_tier": "fast", "quality_tier": "standard"}
+    ],
+    "assignments": [
+      {"scope": "department", "scope_id": "marketing", "primary_model": "openrouter-economy", "fallback_models": ["openai-primary"], "execution_mode": "batch", "user_selectable": true, "required_capabilities": ["text"]},
+      {"scope": "agent", "scope_id": "adversarial-reviewer", "primary_model": "anthropic-review", "fallback_models": ["openai-primary"], "execution_mode": "interactive", "user_selectable": true, "required_capabilities": ["reasoning", "structured-output"]},
+      {"scope": "task", "scope_id": "chief-of-staff.route", "primary_model": "openai-primary", "fallback_models": ["xai-fast"], "execution_mode": "interactive", "user_selectable": true, "required_capabilities": ["reasoning", "structured-output"]}
+    ]
+  }
 }
