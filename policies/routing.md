@@ -11,6 +11,7 @@ The Chief of Staff routes work by dominant outcome, not by keywords alone.
 | interpret/draft/review legal obligations | Legal |
 | reconcile/account/forecast/control financial facts | Finance |
 | define a new capability or product behavior | Product |
+| assess market position, competitive landscape, business performance, long-range plans, or exit options | Strategy & Insights |
 | ownership unclear or multiple functions materially coupled | Chief of Staff |
 
 Ambiguity defaults to `intake` with no execution authority. Cross-functional work has one accountable owner and explicit handoffs.
