@@ -26,8 +26,11 @@ jobs:
         run: |
           python scripts/validate_json_schema.py schemas/company-contract.schema.json examples/synthetic-company/company-contract.json
           python scripts/validate_json_schema.py schemas/company-contract.schema.json templates/private-company/business-ops.example.json
+          python scripts/validate_json_schema.py schemas/contact-center-profile.schema.json examples/synthetic-company/contact-center-profile.json
       - name: Validate semantic company invariants
         run: python scripts/validate_company_contract.py examples/synthetic-company/company-contract.json templates/private-company/business-ops.example.json
+      - name: Validate contact center capability boundaries
+        run: python scripts/validate_contact_center_profile.py examples/synthetic-company/company-contract.json examples/synthetic-company/contact-center-profile.json
       - name: Exercise provider/model routing
         run: python scripts/model_selection_selftest.py
       - name: Exercise private-framework trust boundary
