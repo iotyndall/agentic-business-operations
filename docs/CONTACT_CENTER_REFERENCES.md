@@ -25,7 +25,7 @@ Design lessons used here: present contextual customer information, knowledge, re
 
 ## NIST AI Risk Management Framework — Generative AI Profile
 
-- https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence
+- https://doi.org/10.6028/NIST.AI.600-1
 
 Design lessons used here: lifecycle governance, explicit actor responsibilities, risk identification, evaluation, monitoring, and human/organizational controls around generative systems.
 
