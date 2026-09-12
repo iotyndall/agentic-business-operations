@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "description": "Maps Company OS role contracts to Claude Code subagents. The role markdown is the subagent system prompt verbatim; this file adds only the runtime binding (tools, model tier, deny patterns).",
+  "main_session_role": "chief-of-staff",
+  "agents": [
+    {"role": "roles/strategy-lead.md", "name": "strategy-lead", "department": "strategy",
+     "description": "Frames strategic questions, synthesizes analyst outputs into a decision record with at least two options. Never decides. Use after analysts have written their handoff artifacts.",
+     "tools": ["Read", "Glob", "Grep", "Write", "Edit"], "model": "opus", "mcp_servers": [],
+     "deny_tool_patterns": ["^mcp__.*"]},
+    {"role": "roles/market-intelligence-analyst.md", "name": "market-intelligence-analyst", "department": "strategy",
+     "description": "Market position, competitor landscape, and external research from rated sources. Use for any commission needing outside-in evidence.",
+     "tools": ["Read", "Glob", "Grep", "Write", "WebSearch", "WebFetch"], "model": "sonnet", "mcp_servers": ["pricelabs"],
+     "deny_tool_patterns": ["^mcp__.*(update|create|delete|accept|send|publish|write|set_|post).*"]},
+    {"role": "roles/business-performance-analyst.md", "name": "business-performance-analyst", "department": "strategy",
+     "description": "Measures performance from systems of record under catalog definitions; unit economics, variance, cohorts. Use for any commission needing the company's own numbers.",
+     "tools": ["Read", "Glob", "Grep", "Write"], "model": "sonnet", "mcp_servers": ["quickbooks", "hospitable", "pricelabs"],
+     "deny_tool_patterns": ["^mcp__.*(update|create|delete|accept|send|publish|write|set_|post|cancel|submit|lock|unlock).*"]},
+    {"role": "roles/long-range-planner.md", "name": "long-range-planner", "department": "strategy",
+     "description": "Multi-year scenarios with sensitivities, assumptions register, capital and resourcing proposals, strategic risk register. Use when a commission has a horizon beyond four quarters.",
+     "tools": ["Read", "Glob", "Grep", "Write"], "model": "opus", "mcp_servers": [],
+     "deny_tool_patterns": ["^mcp__.*"]},
+    {"role": "roles/corporate-development-analyst.md", "name": "corporate-development-analyst", "department": "strategy",
+     "description": "Exit readiness, valuation range, buyer landscape, diligence gaps, inbound-interest logging. Operates only inside .agentic/ledger/corpdev/. Never contacts anyone.",
+     "tools": ["Read", "Glob", "Grep", "Write"], "model": "opus", "mcp_servers": [],
+     "deny_tool_patterns": ["^mcp__.*", "^WebSearch$", "^WebFetch$", "^Bash$"],
+     "confidential_scope": ".agentic/ledger/corpdev/"},
+    {"role": "roles/adversarial-reviewer.md", "name": "adversarial-reviewer", "department": "review",
+     "description": "Attacks a recommendation's evidence, assumptions, option set, and producer incentives. Run before any decision record is delivered.",
+     "tools": ["Read", "Glob", "Grep", "Write"], "model": "opus", "mcp_servers": [],
+     "deny_tool_patterns": ["^mcp__.*", "^Bash$"], "review_independence": true}
+  ],
+  "ledger": {
+    "root": ".agentic/ledger",
+    "events": ".agentic/ledger/events.jsonl",
+    "decisions": ".agentic/ledger/decisions",
+    "decision_draft_suffix": ".draft.json"
+  },
+  "external_action_tool_patterns": [
+    "^mcp__.*(send|publish|reply|post|email|message|create_draft|forward|submit|accept|negotiate|pay|transfer|charge|refund|delete|cancel).*",
+    "^mcp__(gmail|slack|twilio|sendgrid|stripe|uber)__.*"
+  ]
+}

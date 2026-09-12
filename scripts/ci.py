@@ -18,6 +18,7 @@ GATES = [
     ('provider/model routing', [f'{S}/model_selection_selftest.py']),
     ('private-framework trust boundary', [f'{S}/contract_hardening_selftest.py']),
     ('synthetic company routing and authority', [f'{S}/evaluate_scenarios.py']),
+    ('claude code adapter export and guard', [f'{S}/claude_export_selftest.py']),
     ('fail-closed contract selftest', [f'{S}/contract_selftest.py', 'examples/synthetic-company/company-contract.json']),
 ]
 

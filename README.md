@@ -22,6 +22,7 @@ The reusable framework currently defines these top-level functions:
 - Legal
 - Finance / Controller
 - Product
+- Strategy & Insights
 - Independent adversarial review
 
 Departments can contain multiple specialist roles. The preferred design is separation of duties rather than one all-powerful agent.
@@ -73,19 +74,40 @@ See:
 
 ## Marketing operating model
 
-Marketing is decomposed into five governed specialist roles with separated duties:
+Marketing is decomposed into six governed specialist roles with separated duties:
 
 1. **Brand Manager** — owns positioning, brand voice, the claims standard, and the campaign portfolio; authors briefs but does not self-approve controlled content.
 2. **Direct Email Specialist** — lifecycle and promotional email to consenting audiences; sends are approval-required unless a flow is pre-authorized within declared bounds.
 3. **Paid Media Specialist** — paid acquisition inside an approved budget envelope; consumes spend authority, never creates it.
 4. **Social Media Specialist** — owned-channel publishing with pre-approved content classes; routes service, legal, and press interactions to the accountable function.
-5. **Marketing Content & Claims Reviewer** — independently gates guidelines, claims, briefs, and content before release and samples afterward.
+5. **Agent Relations Specialist** — owns the company's agent-facing surface and relationships with external AI agents (business-to-agent); publishes only reviewed structured facts, negotiates only inside an approved envelope, never manipulates a counterpart agent.
+6. **Marketing Content & Claims Reviewer** — independently gates guidelines, claims, briefs, and content before release and samples afterward.
 
 The reusable lifecycle is:
 
 `position → register claims → brief → produce → review → execute within authority → verify → sample → learn → revise`
 
 See `roles/marketing.md` and `policies/marketing-guardrails.md`.
+
+## Strategy & Insights operating model
+
+Strategy & Insights is decomposed into five governed specialist roles that hold analyze-and-propose authority only; every strategic decision is a human decision record:
+
+1. **Strategy Lead** — runs the planning cycle and synthesizes options with trade-offs; never decides.
+2. **Market & Competitive Intelligence Analyst** — market position, competitor landscape, research from rated sources; no improper information gathering.
+3. **Business Performance Analyst** — cross-department performance from systems of record under stable definitions.
+4. **Long-Range Planner** — multi-year scenarios, assumptions register, capital and resourcing proposals, strategic risk register.
+5. **Corporate Development Analyst** — exit readiness, valuation ranges, buyer landscape, inbound-interest handling under strict confidentiality; no external contact without approval and Legal clearance.
+
+The reusable lifecycle is:
+
+`sense → measure → model → option → challenge → decide (human) → commit → track → learn`
+
+See `roles/strategy.md` and `policies/strategy-guardrails.md`.
+
+## Running it in Claude Code
+
+`scripts/export_claude_code.py` turns the role contracts for a company's enabled departments into Claude Code subagents, installs a `PreToolUse` guard that denies any call exceeding the role's authority (external actions, confidential scopes, decision records), and a `PostToolUse` hook that appends ledger events. The human sits in the terminal as the principal. See `docs/CLAUDE_CODE.md`.
 
 ## Model and provider control plane
 
