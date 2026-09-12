@@ -71,6 +71,22 @@ See:
 - `schemas/contact-center-profile.schema.json`
 - `docs/CONTACT_CENTER_REFERENCES.md`
 
+## Marketing operating model
+
+Marketing is decomposed into five governed specialist roles with separated duties:
+
+1. **Brand Manager** — owns positioning, brand voice, the claims standard, and the campaign portfolio; authors briefs but does not self-approve controlled content.
+2. **Direct Email Specialist** — lifecycle and promotional email to consenting audiences; sends are approval-required unless a flow is pre-authorized within declared bounds.
+3. **Paid Media Specialist** — paid acquisition inside an approved budget envelope; consumes spend authority, never creates it.
+4. **Social Media Specialist** — owned-channel publishing with pre-approved content classes; routes service, legal, and press interactions to the accountable function.
+5. **Marketing Content & Claims Reviewer** — independently gates guidelines, claims, briefs, and content before release and samples afterward.
+
+The reusable lifecycle is:
+
+`position → register claims → brief → produce → review → execute within authority → verify → sample → learn → revise`
+
+See `roles/marketing.md` and `policies/marketing-guardrails.md`.
+
 ## Model and provider control plane
 
 Agent roles are independent from model vendors. Private company contracts can register providers such as OpenAI, Anthropic, xAI, OpenRouter, OpenAI-compatible endpoints, or custom adapters and assign provider-native model IDs by department, agent, or task.
