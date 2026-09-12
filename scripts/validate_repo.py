@@ -13,7 +13,8 @@ required_roles = [
 required_schemas = [
     'intake.schema.json','work-item.schema.json','handoff.schema.json','decision.schema.json',
     'approval.schema.json','evidence.schema.json','outcome.schema.json','review.schema.json',
-    'company-contract.schema.json','model-policy.schema.json','contact-center-profile.schema.json'
+    'company-contract.schema.json','model-policy.schema.json','contact-center-profile.schema.json',
+    'contact-center-role.schema.json','contact-center-binding.schema.json'
 ]
 
 errors=[]
