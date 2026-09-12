@@ -38,6 +38,7 @@ secret_patterns = {
 }
 email = re.compile(r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b', re.I)
 allowed_email_domains={'example.com','example.org','example.net','example.invalid'}
+allowed_non_email_tokens={'git@github.com'}
 skip={'.git'}
 for p in ROOT.rglob('*'):
     if not p.is_file() or any(part in skip for part in p.parts): continue
@@ -46,7 +47,10 @@ for p in ROOT.rglob('*'):
     for kind,pat in secret_patterns.items():
         if pat.search(text): errors.append(f'possible {kind} in {p.relative_to(ROOT)}')
     for addr in email.findall(text):
-        domain=addr.rsplit('@',1)[1].lower()
+        normalized=addr.lower()
+        if normalized in allowed_non_email_tokens:
+            continue
+        domain=normalized.rsplit('@',1)[1]
         if domain not in allowed_email_domains:
             errors.append(f'non-synthetic email in {p.relative_to(ROOT)}: {addr}')
 

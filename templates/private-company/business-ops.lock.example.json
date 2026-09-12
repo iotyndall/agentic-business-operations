@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "repository": "iotyndall/agentic-business-operations",
+  "commit": "0000000000000000000000000000000000000000",
+  "contract_schema": "schemas/company-contract.schema.json"
+}
