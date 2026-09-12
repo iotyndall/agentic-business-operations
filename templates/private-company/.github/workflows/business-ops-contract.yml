@@ -65,7 +65,16 @@ jobs:
           d['data'].setdefault('allowed_context_refs',[]).append('system://__undeclared_selftest__')
           json.dump(d,open('/tmp/bad-business-ops.json','w'))
           PY
-          if python .company-os/scripts/validate_company_contract.py /tmp/bad-business-ops.json; then
-            echo '::error::Business OS validator accepted an unresolved system context reference.'
+          set +e
+          python .company-os/scripts/validate_company_contract.py /tmp/bad-business-ops.json > /tmp/business-ops-selftest.out 2>&1
+          STATUS=$?
+          set -e
+          cat /tmp/business-ops-selftest.out
+          if [ "$STATUS" -ne 1 ]; then
+            echo "::error::Expected semantic rejection exit 1, got $STATUS."
+            exit 1
+          fi
+          if ! grep -Fq 'allowed_context_ref system://__undeclared_selftest__ does not resolve to a declared system' /tmp/business-ops-selftest.out; then
+            echo '::error::Validator failed without the expected unresolved-system diagnostic.'
             exit 1
           fi
