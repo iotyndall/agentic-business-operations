@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "id": "marketing-weekly-reviews",
+  "title": "Weekly review-to-social run",
+  "owner_role": "marketing",
+  "trigger": {"cron": "0 14 * * 1", "timezone": "America/New_York"},
+  "commission": "Turn last week's five-star guest reviews into social post drafts, get each cleared by the content reviewer, and publish the ones cleared under the standing approval. Escalate anything that is not a plain review repost.",
+  "departments": ["marketing"],
+  "dominant_outcome": "demand-generation",
+  "risk": "moderate",
+  "bounds": {"max_external_actions": 5, "max_runtime_minutes": 20, "standing_approvals": ["mcp__yalloha__publish_post"], "notify": "config://notify/marketing-runs"},
+  "approved_by": "synthetic-owner@example",
+  "expires": "2099-12-31"
+}

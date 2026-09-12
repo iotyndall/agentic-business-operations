@@ -82,6 +82,19 @@ def external_action_allowed(m, cwd, tool, tool_input):
             return False, f'standing approval for {tool} does not cover this content class or the call lacks {key}'
     return False, f'external action {tool} requires a human approval token at .agentic/approvals/{digest}.json'
 
+def charge_run_budget(cwd, tool):
+    """When a charter run is active, every allowed external action consumes one unit of its budget. Fails closed on a malformed file."""
+    f = Path(cwd) / '.agentic' / 'runs' / 'current.json'
+    if not f.exists(): return None
+    try: run = json.loads(f.read_text())
+    except Exception: return 'active charter run file is unreadable; denying external actions'
+    cap = run.get('max_external_actions'); used = run.get('external_actions', 0)
+    if not isinstance(cap, int): return 'active charter run has no max_external_actions; denying'
+    if used >= cap: return f"charter run {run.get('run_id')} has spent its external-action budget ({cap})"
+    run['external_actions'] = used + 1; run.setdefault('external_calls', []).append(tool)
+    f.write_text(json.dumps(run, indent=2))
+    return None
+
 def pre(evt):
     tool = evt.get('tool_name', ''); tool_input = evt.get('tool_input') or {}
     agent = evt.get('agent_type'); cwd = evt.get('cwd', '.')
@@ -96,8 +109,10 @@ def pre(evt):
     for pat in m.get('external_action_tool_patterns', []):
         if re.search(pat, tool):
             ok, why = external_action_allowed(m, cwd, tool, tool_input)
-            if ok: break
-            return deny(why)
+            if not ok: return deny(why)
+            over = charge_run_budget(cwd, tool)
+            if over: return deny(over)
+            break
     # 1b. Connector tools declared approval-required or prohibited need a per-call human token even if not external.
     spec = (m.get('connector_tools') or {}).get(tool)
     if spec and spec.get('authority') in ('approval-required', 'prohibited'):
