@@ -20,6 +20,7 @@
 - [x] private marketing profile schema, validator and fail-closed selftest
 - [x] marketing routing scenarios
 - [x] strategy & insights department, roles, guardrails and scenarios
+- [x] Claude Code runtime adapter: role contracts as subagents, authority guard hook, ledger events
 
 ## Next
 - department-specific specialist roles and review rubrics;
