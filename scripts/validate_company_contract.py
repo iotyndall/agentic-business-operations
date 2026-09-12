@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json, re, sys
 
-VALID_DEPTS={'chief-of-staff','sales','marketing','service','operations','legal','finance','product'}
+VALID_DEPTS={'chief-of-staff','sales','marketing','service','operations','legal','finance','product','strategy'}
 VALID_WRITE={'none','bounded','approval-required'}
 VALID_PROVIDER_KINDS={'openai','anthropic','xai','openrouter','openai-compatible','custom'}
 VALID_MODES={'interactive','batch'}

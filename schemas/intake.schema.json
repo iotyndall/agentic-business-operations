@@ -8,9 +8,9 @@
     "version": {"type": "integer", "const": 1},
     "id": {"type": "string", "minLength": 1},
     "objective": {"type": "string", "minLength": 1},
-    "dominant_outcome": {"enum": ["commercial-opportunity", "demand-generation", "customer-resolution", "internal-operations", "legal-obligation", "financial-control", "product-capability", "cross-functional", "unknown"]},
+    "dominant_outcome": {"enum": ["commercial-opportunity", "demand-generation", "customer-resolution", "internal-operations", "legal-obligation", "financial-control", "product-capability", "strategic-direction", "cross-functional", "unknown"]},
     "risk": {"enum": ["low", "moderate", "high", "critical"]},
-    "material_dependencies": {"type": "array", "uniqueItems": true, "items": {"enum": ["sales", "marketing", "service", "operations", "legal", "finance", "product"]}},
+    "material_dependencies": {"type": "array", "uniqueItems": true, "items": {"enum": ["sales", "marketing", "service", "operations", "legal", "finance", "product", "strategy"]}},
     "requires_external_action": {"type": "boolean"},
     "requires_financial_commitment": {"type": "boolean"}
   }

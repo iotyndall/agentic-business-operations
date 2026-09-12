@@ -8,12 +8,13 @@ OUTCOME_TO_DEPARTMENT = {
     'internal-operations': 'operations',
     'legal-obligation': 'legal',
     'financial-control': 'finance',
+    'strategic-direction': 'strategy',
     'product-capability': 'product',
     'cross-functional': 'chief-of-staff',
     'unknown': 'chief-of-staff',
 }
 VALID_RISK = {'low','moderate','high','critical'}
-VALID_DEPS = {'sales','marketing','service','operations','legal','finance','product'}
+VALID_DEPS = {'sales','marketing','service','operations','legal','finance','product','strategy'}
 
 class RoutingError(ValueError):
     pass

@@ -13,7 +13,8 @@
     "operations",
     "legal",
     "finance",
-    "product"
+    "product",
+    "strategy"
   ],
   "authority": {
     "external_action_default": "deny",
@@ -70,6 +71,11 @@
       "id": "synthetic-agent-surface",
       "kind": "agent-protocol",
       "write_authority": "approval-required"
+    },
+    {
+      "id": "synthetic-strategy-repo",
+      "kind": "strategy",
+      "write_authority": "none"
     }
   ]
 }
