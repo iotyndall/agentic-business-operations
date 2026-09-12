@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Capability Binding",
+  "description": "Binds a vendor-neutral capability to a declared company system and connector with a bounded authority. Reusable across department modules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["capability", "system_ref", "connector_ref", "authority"],
+  "properties": {
+    "capability": {"type": "string", "minLength": 1},
+    "system_ref": {"type": "string", "pattern": "^system://[a-z0-9][a-z0-9._-]*$"},
+    "connector_ref": {"type": "string", "pattern": "^(connector|config|mcp|tool)://[A-Za-z0-9._/-]+$"},
+    "authority": {"enum": ["observe", "propose", "execute-bounded", "approval-required"]},
+    "constraints_ref": {"type": "string"},
+    "requires_verification": {"type": "boolean"}
+  }
+}

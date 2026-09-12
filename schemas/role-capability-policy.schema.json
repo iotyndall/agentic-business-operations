@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Role Capability Policy",
+  "description": "Per-role capability allowlist. Reusable across department modules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["enabled", "allowed_capabilities"],
+  "properties": {
+    "enabled": {"type": "boolean"},
+    "allowed_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "approval_required_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "prohibited_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+  }
+}

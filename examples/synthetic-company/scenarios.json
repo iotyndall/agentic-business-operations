@@ -1,14 +1,323 @@
 {
   "version": 1,
   "scenarios": [
-    {"id": "sales-qualification", "intake": {"version": 1, "id": "WI-SALES-1", "objective": "Evaluate a synthetic inbound opportunity and propose a next step.", "dominant_outcome": "commercial-opportunity", "risk": "low", "material_dependencies": [], "requires_external_action": false, "requires_financial_commitment": false}, "expected": {"department": "sales", "authority_ceiling": "PROPOSE", "escalation_required": false, "required_handoffs": []}},
-    {"id": "marketing-campaign", "intake": {"version": 1, "id": "WI-MKT-1", "objective": "Design a synthetic campaign and measurement plan.", "dominant_outcome": "demand-generation", "risk": "moderate", "material_dependencies": ["sales"], "requires_external_action": false, "requires_financial_commitment": false}, "expected": {"department": "marketing", "authority_ceiling": "PROPOSE", "escalation_required": false, "required_handoffs": ["sales"]}},
-    {"id": "service-refund", "intake": {"version": 1, "id": "WI-SVC-1", "objective": "Handle a synthetic refund request outside policy.", "dominant_outcome": "customer-resolution", "risk": "moderate", "material_dependencies": ["finance"], "requires_external_action": true, "requires_financial_commitment": true}, "expected": {"department": "service", "authority_ceiling": "PROPOSE", "escalation_required": true, "required_handoffs": ["finance"]}},
-    {"id": "operations-outage", "intake": {"version": 1, "id": "WI-OPS-1", "objective": "Respond to a synthetic vendor feed delay.", "dominant_outcome": "internal-operations", "risk": "high", "material_dependencies": ["service"], "requires_external_action": false, "requires_financial_commitment": false}, "expected": {"department": "operations", "authority_ceiling": "PROPOSE", "escalation_required": false, "required_handoffs": ["service"]}},
-    {"id": "legal-terms", "intake": {"version": 1, "id": "WI-LEGAL-1", "objective": "Review a synthetic nonstandard indemnity clause.", "dominant_outcome": "legal-obligation", "risk": "high", "material_dependencies": ["finance"], "requires_external_action": false, "requires_financial_commitment": false}, "expected": {"department": "legal", "authority_ceiling": "PROPOSE", "escalation_required": false, "required_handoffs": ["finance"]}},
-    {"id": "finance-anomaly", "intake": {"version": 1, "id": "WI-FIN-1", "objective": "Investigate a synthetic unreconciled variance without changing the ledger.", "dominant_outcome": "financial-control", "risk": "high", "material_dependencies": ["operations"], "requires_external_action": false, "requires_financial_commitment": false}, "expected": {"department": "finance", "authority_ceiling": "PROPOSE", "escalation_required": false, "required_handoffs": ["operations"]}},
-    {"id": "product-request", "intake": {"version": 1, "id": "WI-PROD-1", "objective": "Turn a loose synthetic feature idea into acceptance criteria.", "dominant_outcome": "product-capability", "risk": "moderate", "material_dependencies": ["marketing", "operations"], "requires_external_action": false, "requires_financial_commitment": false}, "expected": {"department": "product", "authority_ceiling": "PROPOSE", "escalation_required": false, "required_handoffs": ["marketing", "operations"]}},
-    {"id": "cross-functional-launch", "intake": {"version": 1, "id": "WI-COS-1", "objective": "Coordinate a synthetic multi-function launch.", "dominant_outcome": "cross-functional", "risk": "high", "material_dependencies": ["product", "marketing", "sales", "service", "legal"], "requires_external_action": false, "requires_financial_commitment": false}, "expected": {"department": "chief-of-staff", "authority_ceiling": "PROPOSE", "escalation_required": false, "required_handoffs": ["legal", "marketing", "product", "sales", "service"]}},
-    {"id": "unknown-critical", "intake": {"version": 1, "id": "WI-UNK-1", "objective": "Route an ambiguous critical synthetic signal.", "dominant_outcome": "unknown", "risk": "critical", "material_dependencies": [], "requires_external_action": false, "requires_financial_commitment": false}, "expected": {"department": "chief-of-staff", "authority_ceiling": "PROPOSE", "escalation_required": true, "required_handoffs": []}}
+    {
+      "id": "sales-qualification",
+      "intake": {
+        "version": 1,
+        "id": "WI-SALES-1",
+        "objective": "Evaluate a synthetic inbound opportunity and propose a next step.",
+        "dominant_outcome": "commercial-opportunity",
+        "risk": "low",
+        "material_dependencies": [],
+        "requires_external_action": false,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "sales",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": false,
+        "required_handoffs": []
+      }
+    },
+    {
+      "id": "marketing-campaign",
+      "intake": {
+        "version": 1,
+        "id": "WI-MKT-1",
+        "objective": "Design a synthetic campaign and measurement plan.",
+        "dominant_outcome": "demand-generation",
+        "risk": "moderate",
+        "material_dependencies": [
+          "sales"
+        ],
+        "requires_external_action": false,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "marketing",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": false,
+        "required_handoffs": [
+          "sales"
+        ]
+      }
+    },
+    {
+      "id": "service-refund",
+      "intake": {
+        "version": 1,
+        "id": "WI-SVC-1",
+        "objective": "Handle a synthetic refund request outside policy.",
+        "dominant_outcome": "customer-resolution",
+        "risk": "moderate",
+        "material_dependencies": [
+          "finance"
+        ],
+        "requires_external_action": true,
+        "requires_financial_commitment": true
+      },
+      "expected": {
+        "department": "service",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": true,
+        "required_handoffs": [
+          "finance"
+        ]
+      }
+    },
+    {
+      "id": "operations-outage",
+      "intake": {
+        "version": 1,
+        "id": "WI-OPS-1",
+        "objective": "Respond to a synthetic vendor feed delay.",
+        "dominant_outcome": "internal-operations",
+        "risk": "high",
+        "material_dependencies": [
+          "service"
+        ],
+        "requires_external_action": false,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "operations",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": false,
+        "required_handoffs": [
+          "service"
+        ]
+      }
+    },
+    {
+      "id": "legal-terms",
+      "intake": {
+        "version": 1,
+        "id": "WI-LEGAL-1",
+        "objective": "Review a synthetic nonstandard indemnity clause.",
+        "dominant_outcome": "legal-obligation",
+        "risk": "high",
+        "material_dependencies": [
+          "finance"
+        ],
+        "requires_external_action": false,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "legal",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": false,
+        "required_handoffs": [
+          "finance"
+        ]
+      }
+    },
+    {
+      "id": "finance-anomaly",
+      "intake": {
+        "version": 1,
+        "id": "WI-FIN-1",
+        "objective": "Investigate a synthetic unreconciled variance without changing the ledger.",
+        "dominant_outcome": "financial-control",
+        "risk": "high",
+        "material_dependencies": [
+          "operations"
+        ],
+        "requires_external_action": false,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "finance",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": false,
+        "required_handoffs": [
+          "operations"
+        ]
+      }
+    },
+    {
+      "id": "product-request",
+      "intake": {
+        "version": 1,
+        "id": "WI-PROD-1",
+        "objective": "Turn a loose synthetic feature idea into acceptance criteria.",
+        "dominant_outcome": "product-capability",
+        "risk": "moderate",
+        "material_dependencies": [
+          "marketing",
+          "operations"
+        ],
+        "requires_external_action": false,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "product",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": false,
+        "required_handoffs": [
+          "marketing",
+          "operations"
+        ]
+      }
+    },
+    {
+      "id": "cross-functional-launch",
+      "intake": {
+        "version": 1,
+        "id": "WI-COS-1",
+        "objective": "Coordinate a synthetic multi-function launch.",
+        "dominant_outcome": "cross-functional",
+        "risk": "high",
+        "material_dependencies": [
+          "product",
+          "marketing",
+          "sales",
+          "service",
+          "legal"
+        ],
+        "requires_external_action": false,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "chief-of-staff",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": false,
+        "required_handoffs": [
+          "legal",
+          "marketing",
+          "product",
+          "sales",
+          "service"
+        ]
+      }
+    },
+    {
+      "id": "unknown-critical",
+      "intake": {
+        "version": 1,
+        "id": "WI-UNK-1",
+        "objective": "Route an ambiguous critical synthetic signal.",
+        "dominant_outcome": "unknown",
+        "risk": "critical",
+        "material_dependencies": [],
+        "requires_external_action": false,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "chief-of-staff",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": true,
+        "required_handoffs": []
+      }
+    },
+    {
+      "id": "marketing-winback-email",
+      "intake": {
+        "version": 1,
+        "id": "WI-MKT-2",
+        "objective": "Send a synthetic win-back email to 500 lapsed customers.",
+        "dominant_outcome": "demand-generation",
+        "risk": "moderate",
+        "material_dependencies": [],
+        "requires_external_action": true,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "marketing",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": true,
+        "required_handoffs": []
+      }
+    },
+    {
+      "id": "marketing-budget-increase",
+      "intake": {
+        "version": 1,
+        "id": "WI-MKT-3",
+        "objective": "Increase the synthetic paid social envelope by 40% for the remainder of the month.",
+        "dominant_outcome": "demand-generation",
+        "risk": "moderate",
+        "material_dependencies": [
+          "finance"
+        ],
+        "requires_external_action": false,
+        "requires_financial_commitment": true
+      },
+      "expected": {
+        "department": "marketing",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": true,
+        "required_handoffs": [
+          "finance"
+        ]
+      }
+    },
+    {
+      "id": "marketing-negative-review-reply",
+      "intake": {
+        "version": 1,
+        "id": "WI-MKT-4",
+        "objective": "Reply publicly to a synthetic one-star review that alleges an unsafe stay.",
+        "dominant_outcome": "demand-generation",
+        "risk": "high",
+        "material_dependencies": [
+          "service",
+          "legal"
+        ],
+        "requires_external_action": true,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "marketing",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": true,
+        "required_handoffs": [
+          "legal",
+          "service"
+        ]
+      }
+    },
+    {
+      "id": "marketing-preapproved-review-repost",
+      "intake": {
+        "version": 1,
+        "id": "WI-MKT-5",
+        "objective": "Repost a consented five-star review to the synthetic Instagram account.",
+        "dominant_outcome": "demand-generation",
+        "risk": "low",
+        "material_dependencies": [],
+        "requires_external_action": true,
+        "requires_financial_commitment": false
+      },
+      "expected": {
+        "department": "marketing",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": true,
+        "required_handoffs": []
+      }
+    },
+    {
+      "id": "marketing-agent-negotiation-out-of-envelope",
+      "intake": {
+        "version": 1,
+        "id": "WI-MKT-6",
+        "objective": "A synthetic external booking agent requests a 12-night stay at a rate below the approved offer floor.",
+        "dominant_outcome": "demand-generation",
+        "risk": "moderate",
+        "material_dependencies": [
+          "sales"
+        ],
+        "requires_external_action": true,
+        "requires_financial_commitment": true
+      },
+      "expected": {
+        "department": "marketing",
+        "authority_ceiling": "PROPOSE",
+        "escalation_required": true,
+        "required_handoffs": [
+          "sales"
+        ]
+      }
+    }
   ]
 }

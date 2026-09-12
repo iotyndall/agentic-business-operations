@@ -1,0 +1,438 @@
+{
+  "version": 1,
+  "roles": {
+    "brand_manager": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "brand.guideline_draft",
+        "claims.register_propose",
+        "campaign.plan_draft",
+        "campaign.brief_publish_bounded",
+        "audience.research",
+        "positioning.propose",
+        "asset.request",
+        "content.request_review",
+        "analytics.read_aggregate",
+        "experiment.propose",
+        "learning.record"
+      ],
+      "approval_required_capabilities": [
+        "campaign.brief_publish_bounded"
+      ],
+      "prohibited_capabilities": [
+        "email.send_bounded",
+        "spend.execute_bounded",
+        "post.publish_bounded",
+        "content.clear_bounded",
+        "budget.create"
+      ]
+    },
+    "direct_email": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "audience.segment_approved",
+        "consent.read",
+        "suppression.read",
+        "email.template_draft",
+        "email.draft",
+        "email.test_send",
+        "email.send_bounded",
+        "email.schedule_bounded",
+        "deliverability.read",
+        "analytics.read_aggregate",
+        "experiment.propose",
+        "content.request_review"
+      ],
+      "approval_required_capabilities": [
+        "email.send_bounded",
+        "email.schedule_bounded"
+      ],
+      "prohibited_capabilities": [
+        "consent.record",
+        "content.clear_bounded",
+        "spend.execute_bounded",
+        "post.publish_bounded"
+      ]
+    },
+    "paid_media": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "campaign.draft",
+        "targeting.propose",
+        "creative.draft",
+        "creative.request_review",
+        "budget.request",
+        "spend.execute_bounded",
+        "bid.adjust_bounded",
+        "campaign.pause",
+        "pacing.read",
+        "platform_policy.read",
+        "analytics.read_aggregate",
+        "attribution.read",
+        "experiment.propose"
+      ],
+      "approval_required_capabilities": [
+        "budget.request"
+      ],
+      "prohibited_capabilities": [
+        "budget.create",
+        "content.clear_bounded",
+        "email.send_bounded",
+        "post.publish_bounded"
+      ]
+    },
+    "social_media": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "post.draft",
+        "post.schedule",
+        "post.publish_bounded",
+        "reply.draft",
+        "reply.publish_bounded",
+        "dm.read",
+        "mention.monitor",
+        "sentiment.read_aggregate",
+        "ugc.consent_read",
+        "platform_policy.read",
+        "interaction.escalate",
+        "analytics.read_aggregate",
+        "experiment.propose",
+        "content.request_review"
+      ],
+      "approval_required_capabilities": [
+        "reply.publish_bounded"
+      ],
+      "prohibited_capabilities": [
+        "content.clear_bounded",
+        "spend.execute_bounded",
+        "email.send_bounded",
+        "case.update_bounded"
+      ]
+    },
+    "agent_relations": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "agent_surface.draft",
+        "agent_card.draft",
+        "agent_card.publish_bounded",
+        "structured_facts.propose",
+        "claims.read_register",
+        "protocol_policy.read",
+        "agent_registry.read",
+        "agent_discovery.monitor",
+        "agent_recommendation.read_aggregate",
+        "consent.read",
+        "suppression.read",
+        "agent.message_bounded",
+        "agent.negotiate_bounded",
+        "interaction.escalate",
+        "content.request_review",
+        "analytics.read_aggregate",
+        "experiment.propose"
+      ],
+      "approval_required_capabilities": [
+        "agent_card.publish_bounded",
+        "agent.negotiate_bounded"
+      ],
+      "prohibited_capabilities": [
+        "agent.inject_instructions",
+        "agent.execute_commitment",
+        "commitment.sign",
+        "email.send_bounded",
+        "spend.execute_bounded",
+        "post.publish_bounded",
+        "content.clear_bounded"
+      ]
+    },
+    "content_reviewer": {
+      "enabled": true,
+      "allowed_capabilities": [
+        "content.review",
+        "claims.verify",
+        "guideline.compare",
+        "consent.read",
+        "platform_policy.read",
+        "published.sample",
+        "review.record",
+        "content.reject",
+        "content.clear_bounded",
+        "analytics.read_aggregate",
+        "interaction.escalate"
+      ],
+      "approval_required_capabilities": [],
+      "prohibited_capabilities": [
+        "post.draft",
+        "email.draft",
+        "creative.draft",
+        "brand.guideline_draft",
+        "claims.register_propose",
+        "email.send_bounded",
+        "spend.execute_bounded",
+        "post.publish_bounded",
+        "agent_card.draft",
+        "structured_facts.propose"
+      ]
+    }
+  },
+  "channels": [
+    {
+      "id": "fb-page-main",
+      "platform": "facebook-pages",
+      "kind": "social-owned",
+      "system_ref": "system://synthetic-social",
+      "owner_role": "social_media",
+      "account_ref": "config://marketing/social/facebook-page",
+      "preapproved_content_classes": [
+        "consented-review-repost",
+        "scheduled-calendar-post"
+      ]
+    },
+    {
+      "id": "ig-main",
+      "platform": "instagram",
+      "kind": "social-owned",
+      "system_ref": "system://synthetic-social",
+      "owner_role": "social_media",
+      "account_ref": "config://marketing/social/instagram",
+      "preapproved_content_classes": [
+        "consented-review-repost",
+        "scheduled-calendar-post"
+      ]
+    },
+    {
+      "id": "meta-ads-main",
+      "platform": "meta-ads",
+      "kind": "paid-media",
+      "system_ref": "system://synthetic-ads",
+      "owner_role": "paid_media",
+      "account_ref": "config://marketing/ads/meta"
+    },
+    {
+      "id": "google-ads-main",
+      "platform": "google-ads",
+      "kind": "paid-media",
+      "system_ref": "system://synthetic-ads",
+      "owner_role": "paid_media",
+      "account_ref": "config://marketing/ads/google"
+    },
+    {
+      "id": "esp-main",
+      "platform": "email-esp",
+      "kind": "email",
+      "system_ref": "system://synthetic-esp",
+      "owner_role": "direct_email",
+      "account_ref": "config://marketing/email/esp",
+      "preapproved_content_classes": [
+        "transactional-booking-confirmation"
+      ]
+    },
+    {
+      "id": "acp-storefront",
+      "platform": "acp",
+      "kind": "agent-protocol",
+      "system_ref": "system://synthetic-agent-surface",
+      "owner_role": "agent_relations",
+      "account_ref": "config://marketing/agents/acp",
+      "counterpart_classes": [
+        "consumer-shopping-agent"
+      ]
+    },
+    {
+      "id": "a2a-card",
+      "platform": "a2a",
+      "kind": "agent-protocol",
+      "system_ref": "system://synthetic-agent-surface",
+      "owner_role": "agent_relations",
+      "account_ref": "config://marketing/agents/a2a",
+      "counterpart_classes": [
+        "procurement-agent",
+        "booking-agent"
+      ],
+      "preapproved_content_classes": [
+        "informational-availability-reply"
+      ]
+    }
+  ],
+  "budget_envelopes": [
+    {
+      "id": "paid-q4-synthetic",
+      "owner_department": "finance",
+      "currency": "USD",
+      "period": "monthly",
+      "amount_minor": 100000,
+      "daily_cap_minor": 5000,
+      "single_action_cap_minor": 2500,
+      "channels": [
+        "meta-ads-main",
+        "google-ads-main"
+      ],
+      "approval_ref": "approval://finance/marketing-envelope"
+    }
+  ],
+  "offer_envelopes": [
+    {
+      "id": "agent-direct-booking-synthetic",
+      "owner_department": "sales",
+      "currency": "USD",
+      "price_floor_minor": 15000,
+      "price_ceiling_minor": 45000,
+      "max_commitment_minor": 200000,
+      "channels": [
+        "acp-storefront",
+        "a2a-card"
+      ],
+      "terms_ref": "content://sales/standard-terms",
+      "approval_ref": "approval://sales/agent-offer-envelope"
+    }
+  ],
+  "content_refs": {
+    "brand_guideline": "content://marketing/brand-guideline",
+    "claims_register": "content://marketing/claims-register",
+    "content_calendar": "content://marketing/content-calendar",
+    "review_rubric": "content://marketing/review-rubric",
+    "templates": [
+      "content://marketing/email-templates"
+    ]
+  },
+  "policy_refs": {
+    "consent": "policy://marketing/consent",
+    "targeting": "policy://marketing/targeting",
+    "platform_policy": "policy://marketing/platform-policy",
+    "escalation": "policy://marketing/escalation",
+    "crisis_window": "policy://marketing/crisis-window",
+    "measurement": "policy://marketing/measurement",
+    "ugc_consent": "policy://marketing/ugc-consent"
+  },
+  "capability_bindings": [
+    {
+      "capability": "post.publish_bounded",
+      "system_ref": "system://synthetic-social",
+      "connector_ref": "connector://social/publish",
+      "authority": "execute-bounded",
+      "constraints_ref": "policy://marketing/preapproved-content-classes",
+      "requires_verification": true
+    },
+    {
+      "capability": "reply.publish_bounded",
+      "system_ref": "system://synthetic-social",
+      "connector_ref": "connector://social/reply",
+      "authority": "approval-required",
+      "constraints_ref": "policy://marketing/escalation",
+      "requires_verification": true
+    },
+    {
+      "capability": "mention.monitor",
+      "system_ref": "system://synthetic-social",
+      "connector_ref": "connector://social/mentions",
+      "authority": "observe",
+      "requires_verification": false
+    },
+    {
+      "capability": "spend.execute_bounded",
+      "system_ref": "system://synthetic-ads",
+      "connector_ref": "connector://ads/campaign-activate",
+      "authority": "execute-bounded",
+      "constraints_ref": "envelope://paid-q4-synthetic",
+      "requires_verification": true
+    },
+    {
+      "capability": "budget.request",
+      "system_ref": "system://synthetic-ledger",
+      "connector_ref": "connector://finance/budget-request",
+      "authority": "approval-required",
+      "constraints_ref": "approval://finance/marketing-envelope",
+      "requires_verification": true
+    },
+    {
+      "capability": "campaign.pause",
+      "system_ref": "system://synthetic-ads",
+      "connector_ref": "connector://ads/campaign-pause",
+      "authority": "execute-bounded",
+      "requires_verification": true
+    },
+    {
+      "capability": "email.send_bounded",
+      "system_ref": "system://synthetic-esp",
+      "connector_ref": "connector://esp/send",
+      "authority": "approval-required",
+      "constraints_ref": "policy://marketing/consent",
+      "requires_verification": true
+    },
+    {
+      "capability": "consent.read",
+      "system_ref": "system://synthetic-crm",
+      "connector_ref": "connector://crm/consent-read",
+      "authority": "observe",
+      "requires_verification": false
+    },
+    {
+      "capability": "suppression.read",
+      "system_ref": "system://synthetic-crm",
+      "connector_ref": "connector://crm/suppression-read",
+      "authority": "observe",
+      "requires_verification": false
+    },
+    {
+      "capability": "content.clear_bounded",
+      "system_ref": "system://synthetic-content",
+      "connector_ref": "connector://content/review-decision",
+      "authority": "execute-bounded",
+      "constraints_ref": "content://marketing/review-rubric",
+      "requires_verification": true
+    },
+    {
+      "capability": "bid.adjust_bounded",
+      "system_ref": "system://synthetic-ads",
+      "connector_ref": "connector://ads/bid-adjust",
+      "authority": "execute-bounded",
+      "constraints_ref": "envelope://paid-q4-synthetic",
+      "requires_verification": true
+    },
+    {
+      "capability": "email.schedule_bounded",
+      "system_ref": "system://synthetic-esp",
+      "connector_ref": "connector://esp/schedule",
+      "authority": "approval-required",
+      "constraints_ref": "policy://marketing/consent",
+      "requires_verification": true
+    },
+    {
+      "capability": "agent_card.publish_bounded",
+      "system_ref": "system://synthetic-agent-surface",
+      "connector_ref": "connector://agents/card-publish",
+      "authority": "approval-required",
+      "constraints_ref": "content://marketing/claims-register",
+      "requires_verification": true
+    },
+    {
+      "capability": "agent.message_bounded",
+      "system_ref": "system://synthetic-agent-surface",
+      "connector_ref": "connector://agents/message",
+      "authority": "execute-bounded",
+      "constraints_ref": "policy://marketing/agent-message-classes",
+      "requires_verification": true
+    },
+    {
+      "capability": "agent.negotiate_bounded",
+      "system_ref": "system://synthetic-agent-surface",
+      "connector_ref": "connector://agents/negotiate",
+      "authority": "approval-required",
+      "constraints_ref": "offer://agent-direct-booking-synthetic",
+      "requires_verification": true
+    },
+    {
+      "capability": "agent_discovery.monitor",
+      "system_ref": "system://synthetic-agent-surface",
+      "connector_ref": "connector://agents/discovery",
+      "authority": "observe",
+      "requires_verification": false
+    }
+  ],
+  "sampling_policy_ref": "policy://marketing/published-sampling",
+  "model_assignment_refs": [
+    "model-assignment://marketing/brand",
+    "model-assignment://marketing/channels",
+    "model-assignment://marketing/reviewer",
+    "model-assignment://marketing/agent-relations"
+  ]
+}

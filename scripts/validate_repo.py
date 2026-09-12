@@ -9,13 +9,15 @@ required_roles = [
     'legal.md','finance.md','product.md','adversarial-reviewer.md',
     'service-supervisor.md','script-knowledge-author.md','frontline-service-worker.md',
     'service-quality-reviewer.md','brand-manager.md','direct-email-specialist.md',
-    'paid-media-specialist.md','social-media-specialist.md','marketing-content-reviewer.md'
+    'paid-media-specialist.md','social-media-specialist.md','marketing-content-reviewer.md',
+    'agent-relations-specialist.md'
 ]
 required_schemas = [
     'intake.schema.json','work-item.schema.json','handoff.schema.json','decision.schema.json',
     'approval.schema.json','evidence.schema.json','outcome.schema.json','review.schema.json',
     'company-contract.schema.json','model-policy.schema.json','contact-center-profile.schema.json',
-    'contact-center-role.schema.json','contact-center-binding.schema.json'
+    'contact-center-role.schema.json','contact-center-binding.schema.json',
+    'role-capability-policy.schema.json','capability-binding.schema.json','marketing-profile.schema.json'
 ]
 
 errors=[]

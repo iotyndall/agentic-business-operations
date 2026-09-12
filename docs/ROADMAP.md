@@ -17,6 +17,8 @@
 - [x] daily/weekly/monthly operating cadence
 - [x] contact-center specialist roles and guardrails
 - [x] marketing specialist roles and guardrails
+- [x] private marketing profile schema, validator and fail-closed selftest
+- [x] marketing routing scenarios
 
 ## Next
 - department-specific specialist roles and review rubrics;
