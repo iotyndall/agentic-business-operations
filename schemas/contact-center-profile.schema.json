@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Private Contact Center Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "roles", "channels", "content_refs", "policy_refs", "capability_bindings"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frontline", "supervisor", "script_author", "quality_reviewer"],
+      "properties": {
+        "frontline": {"$ref": "#/$defs/role"},
+        "supervisor": {"$ref": "#/$defs/role"},
+        "script_author": {"$ref": "#/$defs/role"},
+        "quality_reviewer": {"$ref": "#/$defs/role"}
+      }
+    },
+    "channels": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "content_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["knowledge", "scripts"],
+      "properties": {
+        "knowledge": {"type": "array", "items": {"type": "string"}},
+        "scripts": {"type": "array", "items": {"type": "string"}},
+        "qa_rubrics": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "policy_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "consent", "escalation"],
+      "properties": {
+        "identity": {"type": "string", "minLength": 1},
+        "consent": {"type": "string", "minLength": 1},
+        "escalation": {"type": "string", "minLength": 1},
+        "recording_disclosure": {"type": "string"},
+        "payment": {"type": "string"},
+        "privacy_retention": {"type": "string"},
+        "accessibility": {"type": "string"}
+      }
+    },
+    "capability_bindings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/binding"}
+    },
+    "supervisor_trigger_refs": {"type": "array", "items": {"type": "string"}},
+    "sampling_policy_ref": {"type": "string"},
+    "model_assignment_refs": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "role": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "allowed_capabilities"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "allowed_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "approval_required_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "prohibited_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability", "system_ref", "connector_ref", "authority"],
+      "properties": {
+        "capability": {"type": "string", "minLength": 1},
+        "system_ref": {"type": "string", "pattern": "^system://[a-z0-9][a-z0-9._-]*$"},
+        "connector_ref": {"type": "string", "minLength": 1},
+        "authority": {"enum": ["observe", "propose", "execute-bounded", "approval-required"]},
+        "constraints_ref": {"type": "string"},
+        "requires_verification": {"type": "boolean", "default": true}
+      }
+    }
+  }
+}
