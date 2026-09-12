@@ -15,6 +15,8 @@
 - [x] scenario evaluator scoring routing, authority and required handoffs
 - [x] private-company contract validator
 - [x] daily/weekly/monthly operating cadence
+- [x] contact-center specialist roles and guardrails
+- [x] marketing specialist roles and guardrails
 
 ## Next
 - department-specific specialist roles and review rubrics;
