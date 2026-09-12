@@ -48,6 +48,40 @@ def check_decision_write(tool_input, ledger):
             return 'agents may not populate decided_by/decision; that is the human principal'
     return None
 
+def _approved(doc):
+    return isinstance(doc, dict) and doc.get('status') == 'approved' and bool(doc.get('approved_by'))
+
+def _not_expired(doc):
+    exp = doc.get('expires')
+    if not exp: return False
+    try: return time.strptime(exp[:10], '%Y-%m-%d') > time.gmtime()
+    except Exception: return False
+
+def external_action_allowed(m, cwd, tool, tool_input):
+    import hashlib
+    digest = hashlib.sha256(json.dumps({'tool': tool, 'input': tool_input}, sort_keys=True).encode()).hexdigest()[:16]
+    token = Path(cwd) / '.agentic' / 'approvals' / f'{digest}.json'
+    try:
+        if token.exists() and _approved(json.loads(token.read_text())): return True, ''
+    except Exception: pass
+    spec = (m.get('connector_tools') or {}).get(tool)
+    standing = Path(cwd) / (m.get('standing_approvals', {}).get('root') or '.agentic/approvals/standing') / f'{tool}.json'
+    if spec and spec.get('clearance_key') and standing.exists():
+        try: sa = json.loads(standing.read_text())
+        except Exception: sa = None
+        if _approved(sa) and _not_expired(sa):
+            classes = set(sa.get('content_classes') or []) & set(spec.get('preapproved_content_classes') or [])
+            key = spec['clearance_key']; art = str(tool_input.get(key, '')).strip()
+            if classes and art and re.fullmatch(r'[A-Za-z0-9._-]+', art):
+                cl = Path(cwd) / (m.get('clearances', {}).get('root') or '.agentic/ledger/reviews/clearances') / f'{art}.json'
+                try: c = json.loads(cl.read_text()) if cl.exists() else None
+                except Exception: c = None
+                if isinstance(c, dict) and c.get('cleared') is True and c.get('content_class') in classes and c.get('reviewer'):
+                    return True, ''
+                return False, f'{tool} on {key}={art} needs a reviewer clearance with content_class in {sorted(classes)} at {cl}'
+            return False, f'standing approval for {tool} does not cover this content class or the call lacks {key}'
+    return False, f'external action {tool} requires a human approval token at .agentic/approvals/{digest}.json'
+
 def pre(evt):
     tool = evt.get('tool_name', ''); tool_input = evt.get('tool_input') or {}
     agent = evt.get('agent_type'); cwd = evt.get('cwd', '.')
@@ -55,18 +89,20 @@ def pre(evt):
     if m is None:
         return 0 if tool in SAFE_TOOLS else deny('runtime manifest missing; failing closed')
     ledger = m['ledger']
-    # 1. External actions are denied company-wide unless a human approval token exists for this exact call.
+    # 1. External actions are denied company-wide unless a human approval exists for this call.
+    #    (a) per-call token: .agentic/approvals/<sha256(tool+input)[:16]>.json with status approved + approved_by
+    #    (b) standing approval for a pre-approved content class: .agentic/approvals/standing/<tool>.json, valid only when a
+    #        reviewer-written clearance for the artifact named by the tool's clearance_key carries a matching content_class.
     for pat in m.get('external_action_tool_patterns', []):
         if re.search(pat, tool):
-            import hashlib
-            digest = hashlib.sha256(json.dumps({'tool': tool, 'input': tool_input}, sort_keys=True).encode()).hexdigest()[:16]
-            token = Path(cwd) / '.agentic' / 'approvals' / f'{digest}.json'
-            if token.exists():
-                try:
-                    t = json.loads(token.read_text())
-                    if t.get('status') == 'approved' and t.get('approved_by'): break
-                except Exception: pass
-            return deny(f'external action {tool} requires a human approval token at .agentic/approvals/{digest}.json')
+            ok, why = external_action_allowed(m, cwd, tool, tool_input)
+            if ok: break
+            return deny(why)
+    # 1b. Connector tools declared approval-required or prohibited need a per-call human token even if not external.
+    spec = (m.get('connector_tools') or {}).get(tool)
+    if spec and spec.get('authority') in ('approval-required', 'prohibited'):
+        ok, why = external_action_allowed(m, cwd, tool, tool_input)
+        if not ok: return deny(f"{tool} is {spec['authority']} by its connector; " + why)
     # 2. Role-scoped denies from the manifest (subagent frontmatter allowlists cover built-ins; this covers MCP/web patterns).
     role = next((a for a in m['agents'] if a['name'] == agent), None) if agent else None
     if role:
@@ -79,7 +115,12 @@ def pre(evt):
             scope = a.get('confidential_scope')
             if scope and scope.strip('/') in p and agent != a['name']:
                 return deny(f"{p} is inside {a['name']} confidential scope")
-    # 4. Decision records.
+    # 4. Clearance records: only a reviewer role may write them; the author of content never clears it.
+    if tool in ('Write', 'Edit', 'MultiEdit') and p:
+        croot = (m.get('clearances', {}).get('root') or '.agentic/ledger/reviews/clearances').strip('/')
+        if croot in p and not (role and role.get('clearance_writer')):
+            return deny(f'only a reviewer role may write clearance records under {croot}')
+    # 5. Decision records.
     if tool in ('Write', 'Edit', 'MultiEdit'):
         reason = check_decision_write(tool_input, ledger)
         if reason: return deny(reason)

@@ -25,6 +25,18 @@ def title_of(md):
         if line.startswith('# '): return line[2:].strip()
     return ''
 
+def connector_tools(manifest):
+    """Per-tool guard metadata (clearance key, pre-approved classes) from every published connector the manifest lists."""
+    out = {}
+    for rel in manifest.get('connectors', []):
+        c = json.loads((ROOT / rel).read_text(encoding='utf-8'))
+        server = c['mcp']['server_name']
+        for t in c['tools']:
+            if t.get('external_action') or t.get('financial_commitment') or t['authority'] in ('approval-required', 'prohibited'):
+                out[f"mcp__{server}__{t['tool']}"] = {'connector': c['id'], 'capability': t['capability'], 'authority': t['authority'],
+                    'clearance_key': t.get('clearance_key'), 'preapproved_content_classes': t.get('preapproved_content_classes', [])}
+    return out
+
 def main(argv):
     if len(argv) < 3: print(__doc__, file=sys.stderr); return 2
     contract = json.loads(Path(argv[1]).read_text(encoding='utf-8'))
@@ -50,13 +62,15 @@ def main(argv):
                   "Write every artifact you produce under .agentic/ledger/ as JSON or markdown with a source reference for every material claim. "
                   "If you need something outside your allowed capabilities, write a handoff request and stop.\n\n")
         (agents_dir / f"{a['name']}.md").write_text('\n'.join(fm) + '\n' + header + body, encoding='utf-8')
-        exported.append({k: a[k] for k in ('name', 'department', 'deny_tool_patterns') if k in a} | {'role': a['role'], 'title': title_of(body), 'confidential_scope': a.get('confidential_scope')})
+        exported.append({k: a[k] for k in ('name', 'department', 'deny_tool_patterns', 'clearance_writer', 'review_independence') if k in a} | {'role': a['role'], 'title': title_of(body), 'confidential_scope': a.get('confidential_scope')})
     shutil.copy(ROOT / 'claude' / 'hooks' / 'company_os_guard.py', hooks_dir / 'company_os_guard.py')
     (hooks_dir / 'company_os_guard.py').chmod(0o755)
     runtime = {'version': 1, 'framework_commit': commit, 'company_id': contract.get('company', {}).get('id'),
                'external_action_default': contract.get('authority', {}).get('external_action_default', 'deny'),
                'external_action_tool_patterns': manifest['external_action_tool_patterns'],
-               'ledger': manifest['ledger'], 'agents': exported}
+               'ledger': manifest['ledger'], 'agents': exported,
+               'clearances': manifest.get('clearances', {}), 'standing_approvals': manifest.get('standing_approvals', {}),
+               'connector_tools': connector_tools(manifest)}
     (out / '.agentic' / 'runtime-manifest.json').write_text(json.dumps(runtime, indent=2) + '\n', encoding='utf-8')
     settings_path = out / '.claude' / 'settings.json'
     settings = json.loads(settings_path.read_text()) if settings_path.exists() else {}
