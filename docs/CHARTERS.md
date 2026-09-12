@@ -27,13 +27,15 @@ A charter turns the Chief of Staff into a chief operating officer, or a departme
 | `max_external_actions > 0` requires a standing approval; otherwise the charter is draft-only | validator |
 | Missing or expired standing approval at run time → the run is downgraded to draft-only | runner |
 | Every allowed external call spends one unit of the run's budget; the guard denies past the cap and fails closed on a malformed run file | guard |
-| Two runs can't overlap | runner |
+| Two runs can't overlap; counters are updated under an inter-process lock | runner + guard |
+| Agents cannot write approvals, counters, run markers, the runtime manifest, or `.claude/` — by file tool or shell | guard |
+| Standing approvals are only honoured for a system the contract declares `write_authority: bounded`; `approval-required` systems always need a per-call token | exporter + guard |
 | Expiry and approver required | validator + runner |
 | The charter cannot create a standing approval, a clearance, or an approval token | by construction — those live in files only the human (or the reviewer role) writes |
 
 ## Running one
 
-Interactive: `python3 .company-os/scripts/run_charter.py cadence/<id>.charter.json` prints the prompt; paste it into `claude`.
+Interactive: `python3 .company-os/scripts/run_charter.py cadence/<id>.charter.json` writes the intake and the run marker, then prints the prompt; paste it into `claude`. The marker stays active — so the guard enforces the budget in that session — until you run `run_charter.py --finish`. `--dry-run` writes nothing.
 
 Headless: add `--headless`; the runner opens `claude -p` with the commission, times it out at `max_runtime_minutes`, and writes `.agentic/runs/<run_id>.json` with the routing, budget spent, and session output tail.
 

@@ -9,6 +9,7 @@ import json, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CONNECTOR_SERVER = {}
 
 
 def connector_index():
@@ -17,6 +18,7 @@ def connector_index():
     for cf in sorted((ROOT / 'connectors').glob('*/connector.json')):
         try: c = json.loads(cf.read_text(encoding='utf-8'))
         except Exception: continue
+        CONNECTOR_SERVER[c['id']] = c.get('mcp', {}).get('server_name', c['id'])
         for t in c.get('tools', []): idx[f"connector://{c['id']}/{t['tool']}"] = t
     return idx
 
@@ -181,6 +183,10 @@ def validate(company, profile):
             if t is None: fail(f'{cap} binds {cref}, which no published connector declares', errors)
             elif t['capability'] != cap: fail(f'{cap} binds {cref}, but the connector declares that tool as {t["capability"]}', errors)
             elif t['authority'] == 'prohibited': fail(f'{cap} binds {cref}, which the connector prohibits', errors)
+            else:
+                cid = cref.split('/')[2]
+                if sref not in (f'system://{cid}', f"system://{CONNECTOR_SERVER.get(cid, cid)}"):
+                    fail(f'{cap} binds {cref} but system_ref {sref} is not that connector\'s system (expected system://{cid})', errors)
     for cap in set(EXCLUSIVE) & declared:
         if cap not in bound:
             fail(f'{cap} is allowed but has no capability binding; unbound external actions fail closed', errors)

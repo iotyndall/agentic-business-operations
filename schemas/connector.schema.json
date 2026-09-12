@@ -162,6 +162,10 @@
           "invalidates_clearance": {
             "type": "boolean",
             "description": "True if the tool changes an artifact identified by a clearance_key; the guard denies it while a reviewer clearance for that artifact exists, so a cleared draft cannot be edited and then published under the clearance."
+          },
+          "clearance_match_field": {
+            "type": "string",
+            "description": "When the tool's clearance_key names a *parent* artifact (e.g. reviewId) rather than the cleared artifact itself (postId), the guard finds clearances whose record carries this field equal to the input value (e.g. review_id). Reviewers must write that field into the clearance."
           }
         }
       }

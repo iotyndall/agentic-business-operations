@@ -28,6 +28,21 @@ def _type_ok(expected, value):
     return check(value)
 
 
+def _http_uri_ok(value):
+    from urllib.parse import urlsplit
+    try: u = urlsplit(value)
+    except Exception: return False
+    if u.scheme not in ('http', 'https') or not u.netloc or u.username or u.password: return False
+    host = u.hostname or ''
+    if re.search(r'%(?![0-9A-Fa-f]{2})', value): return False
+    if host.startswith('[') or ':' in host:
+        import ipaddress
+        try: ipaddress.IPv6Address(host.strip('[]')); return True
+        except Exception: return False
+    labels = host.split('.')
+    return all(re.fullmatch(r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?', l, re.I) for l in labels) and bool(labels[0])
+
+
 def validate_instance(schema, value, schema_file, path='$'):
     errors = []
     if '$ref' in schema:
@@ -87,8 +102,8 @@ def validate_instance(schema, value, schema_file, path='$'):
             errors.append(f'{path}: string shorter than minLength {schema["minLength"]}')
         if 'pattern' in schema and re.search(schema['pattern'], value) is None:
             errors.append(f'{path}: string does not match required pattern')
-        if schema.get('format') == 'uri' and re.fullmatch(r'https?://[A-Za-z0-9.-]+(:[0-9]+)?(/[^\s]*)?', value) is None:
-            errors.append(f'{path}: not an http(s) URI')
+        if schema.get('format') == 'uri' and not _http_uri_ok(value):
+            errors.append(f'{path}: not a valid http(s) URI')
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         if 'minimum' in schema and value < schema['minimum']:
             errors.append(f'{path}: below minimum {schema["minimum"]}')

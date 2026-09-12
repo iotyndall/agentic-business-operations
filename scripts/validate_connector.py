@@ -30,6 +30,11 @@ ROLE_TO_AGENT = {
     'strategy': {'strategy_lead': 'strategy-lead', 'market_intelligence': 'market-intelligence-analyst',
                  'business_performance': 'business-performance-analyst', 'long_range': 'long-range-planner',
                  'corporate_development': 'corporate-development-analyst'},
+    'service': {'frontline': 'frontline-service-worker', 'supervisor': 'service-supervisor',
+                'script_author': 'script-knowledge-author', 'quality_reviewer': 'service-quality-reviewer'},
+    # Departments without specialist decomposition yet: the department index role is the only vocabulary.
+    'sales': {'sales': 'sales'}, 'operations': {'operations': 'operations'}, 'finance': {'finance': 'finance'},
+    'legal': {'legal': 'legal'}, 'product': {'product': 'product'},
 }
 SAFE_AUTHORITY = {'observe', 'propose'}
 # Capabilities that are external by definition, whatever the connector says about them.
@@ -82,7 +87,7 @@ def validate(conn, manifest=None):
         ext_patterns = manifest.get('external_action_tool_patterns', [])
         for role, agent_name in roles.items():
             a = agents.get(agent_name)
-            if a is None: errors.append(f'manifest lacks agent {agent_name}'); continue
+            if a is None: continue  # no subagent exists for this role yet; nothing to bind
             uses = conn['id'] in (a.get('mcp_servers') or []) or server in (a.get('mcp_servers') or [])
             for t in conn['tools']:
                 full = f"mcp__{server}__{t['tool']}"

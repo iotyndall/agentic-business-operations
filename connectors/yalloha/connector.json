@@ -109,7 +109,8 @@
       ],
       "notes": "Creates a draft post (image + caption) from a review. Nothing is published. Denied while a clearance exists for the artifact: a cleared draft is immutable until the reviewer withdraws the clearance.",
       "clearance_key": "reviewId",
-      "invalidates_clearance": true
+      "invalidates_clearance": true,
+      "clearance_match_field": "review_id"
     },
     {
       "tool": "update_caption",

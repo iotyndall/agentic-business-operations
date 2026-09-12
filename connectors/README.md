@@ -30,7 +30,11 @@ And regardless of approvals:
 - A connector server is exposed to a subagent only if the private company contract declares it under `systems`. Undeclared servers are stripped from `mcpServers` and explicitly denied, so a user-level Claude configuration cannot leak one in.
 - Any tool under a declared connector server that is **not in the published map** is denied — a vendor adding or renaming a tool cannot widen an agent's authority. The main session may only call observe-authority tools.
 - A **cleared artifact is immutable**: tools the connector marks `invalidates_clearance` (edit caption, regenerate) are denied while a clearance exists for that artifact, so the reviewer's clearance always covers what gets published.
-- `max_per_day` on a standing approval is enforced with a durable per-tool daily counter.
+- `max_per_day` on a standing approval is enforced with a durable per-tool daily counter, updated under a lock.
+- Ownership at runtime is the **intersection** of the vendor's `owner_roles`, the private profile's grants (capability allowed and, for external actions, bound), the roles actually exported, and the system's `write_authority` (`none` → observe tools only; `approval-required` → no standing approvals).
+- A tool whose `clearance_key` names a *parent* artifact (e.g. `generate_post` by `reviewId`) declares `clearance_match_field` (e.g. `review_id`); reviewers write that field into the clearance so regeneration is blocked too.
+- Runtime authority state (`.agentic/approvals/`, `.agentic/runs/`, the runtime manifest, `.claude/`) is human-owned; agents cannot write it by file tool or shell.
+- A published connector the company has *not* declared is denied to every session, main included.
 
 ## Available connectors
 

@@ -26,13 +26,39 @@ with tempfile.TemporaryDirectory() as td:
     if rc != 0: failures.append(f'export failed: {se}')
     # Undeclared systems are stripped AND denied: export the plain synthetic contract elsewhere and check.
     with tempfile.TemporaryDirectory() as td2:
-        run([str(ROOT / 'scripts/export_claude_code.py'), str(ROOT / 'examples/synthetic-company/company-contract.json'), td2])
+        bare = json.loads((ROOT / 'examples/synthetic-company/company-contract.json').read_text())
+        bare['systems'] = [x for x in bare['systems'] if x['id'] != 'yalloha']
+        (Path(td2) / 'bare.json').write_text(json.dumps(bare))
+        run([str(ROOT / 'scripts/export_claude_code.py'), str(Path(td2) / 'bare.json'), td2])
         sm = (Path(td2) / '.claude/agents/social-media-specialist.md').read_text()
         if 'mcpServers' in sm.split('---', 2)[1]: failures.append('undeclared yalloha system was exported into mcpServers')
         rm = json.loads((Path(td2) / '.agentic/runtime-manifest.json').read_text())
         sa = next(a for a in rm['agents'] if a['name'] == 'social-media-specialist')
         if not any(p == '^mcp__yalloha__.*' for p in sa['deny_tool_patterns']): failures.append('undeclared yalloha system is not denied')
         if rm['connector_servers']: failures.append('connector_servers should be empty when no system is declared')
+        o = subprocess.run([PY, str(Path(td2) / '.claude/hooks/company_os_guard.py'), 'pre'], input=json.dumps({'tool_name': f'mcp__yalloha__list_properties', 'tool_input': {}, 'cwd': td2}), capture_output=True, text=True, cwd=td2).stdout
+        if '"deny"' not in o: failures.append('main session could use a known-but-undeclared connector server')
+    # A draft-only profile strips publish ownership even though the vendor connector grants it to social_media.
+    with tempfile.TemporaryDirectory() as td4:
+        prof = json.loads((ROOT / 'examples/yalloha-host/marketing-profile.json').read_text())
+        prof['roles']['social_media']['allowed_capabilities'].remove('post.publish_bounded')
+        prof['capability_bindings'] = [b for b in prof['capability_bindings'] if b['capability'] != 'post.publish_bounded']
+        (Path(td4) / 'p.json').write_text(json.dumps(prof))
+        run([str(ROOT / 'scripts/export_claude_code.py'), str(cpath), td4, '--marketing-profile', str(Path(td4) / 'p.json')])
+        rm4 = json.loads((Path(td4) / '.agentic/runtime-manifest.json').read_text())
+        if rm4['connector_tools']['mcp__yalloha__publish_post']['owner_agents']: failures.append('draft-only profile still grants publish_post')
+        if 'social-media-specialist' not in rm4['connector_tools']['mcp__yalloha__generate_post']['owner_agents']: failures.append('profile-granted draft tool lost')
+    # write_authority none on the system leaves only observe tools.
+    with tempfile.TemporaryDirectory() as td5:
+        ro = json.loads(cpath.read_text())
+        for x in ro['systems']:
+            if x['id'] == 'yalloha': x['write_authority'] = 'none'
+        (Path(td5) / 'c.json').write_text(json.dumps(ro))
+        run([str(ROOT / 'scripts/export_claude_code.py'), str(Path(td5) / 'c.json'), td5])
+        rm5 = json.loads((Path(td5) / '.agentic/runtime-manifest.json').read_text())
+        if rm5['connector_tools']['mcp__yalloha__generate_post']['owner_agents']: failures.append('read-only system still grants a draft tool')
+        if not rm5['connector_tools']['mcp__yalloha__list_properties']['owner_agents']: failures.append('read-only system lost observe tools')
+        if rm5['connector_tools']['mcp__yalloha__publish_post']['standing_allowed']: failures.append('read-only system should not allow standing approvals')
     # Disabled roles in a marketing profile are not exported.
     with tempfile.TemporaryDirectory() as td3:
         run([str(ROOT / 'scripts/export_claude_code.py'), str(cpath), td3, '--marketing-profile', str(ROOT / 'examples/yalloha-host/marketing-profile.json')])
@@ -123,6 +149,16 @@ with tempfile.TemporaryDirectory() as td:
     (cwd / f'.agentic/approvals/{d}.json').unlink()
     check('first publish under max_per_day=1 allowed', ev(f'{Y}publish_post', pub, 'social-media-specialist'), False)
     check('second publish same day denied by max_per_day', ev(f'{Y}publish_post', pub, 'social-media-specialist'), True)
+    # round 2
+    check('agent cannot write a standing approval', ev('Write', {'file_path': str(st_dir / f'{Y}publish_post.json'), 'content': '{}'}, 'social-media-specialist'), True)
+    check('agent cannot reset a daily counter', ev('Edit', {'file_path': str(st_dir / f'{Y}publish_post.counter.json'), 'old_string': '1', 'new_string': '0'}, 'brand-manager'), True)
+    check('agent cannot touch the run marker', ev('Write', {'file_path': str(cwd / '.agentic/runs/current.json'), 'content': '{}'}, 'strategy-lead'), True)
+    check('agent cannot edit the generated agents tree', ev('Write', {'file_path': str(cwd / '.claude/agents/x.md'), 'content': ''}, 'strategy-lead'), True)
+    check('shell access to approvals is denied', ev('Bash', {'command': 'cat > .agentic/approvals/standing/x.json'}, 'market-intelligence-analyst'), True)
+    check('agent may still write ordinary ledger artifacts', ev('Write', {'file_path': str(cwd / '.agentic/ledger/handoffs/x.json'), 'content': '{}'}, 'strategy-lead'), False)
+    (cl_dir / 'post-123.json').write_text(json.dumps({'cleared': True, 'content_class': 'consented-review-repost', 'reviewer': 'marketing-content-reviewer', 'review_id': 'r1'}))
+    check('regenerating a review whose post is cleared is denied', ev(f'{Y}generate_post', {'reviewId': 'r1'}, 'social-media-specialist'), True)
+    check('regenerating an uncleared review is allowed', ev(f'{Y}generate_post', {'reviewId': 'r2'}, 'social-media-specialist'), False)
     for name, evt, should_deny in cases:
         if evt is None: continue
         denied, out_text = guard(evt, cwd)

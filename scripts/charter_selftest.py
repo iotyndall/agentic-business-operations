@@ -42,12 +42,16 @@ with tempfile.TemporaryDirectory() as td:
     if out['record']['max_external_actions'] != 0 or 'mcp__yalloha__publish_post' not in out['record']['downgraded_standing_approvals']:
         failures.append('missing standing approval should downgrade the run to draft-only')
     if out['record']['routing']['department'] != 'marketing': failures.append(f"charter routed to {out['record']['routing']}")
+    if (repo / '.agentic/ledger/intake').exists() and list((repo / '.agentic/ledger/intake').glob('*.json')): failures.append('dry run wrote an intake')
     # with the standing approval present: run for real (non-headless), which writes the run record and leaves no current.json
     sa = repo / '.agentic/approvals/standing'; sa.mkdir(parents=True)
     (sa / 'mcp__yalloha__publish_post.json').write_text(json.dumps({'status': 'approved', 'approved_by': 'human', 'expires': '2999-01-01', 'content_classes': ['consented-review-repost']}))
     r = subprocess.run([PY, str(ROOT / 'scripts/run_charter.py'), str(ch), '--repo', str(repo)], capture_output=True, text=True)
+    if r.returncode != 0 or not (repo / '.agentic/runs/current.json').exists(): failures.append(f'interactive run should leave the marker active: rc={r.returncode} {r.stderr[-300:]}')
+    if list((repo / '.agentic/ledger/intake').glob('*.json')) and not (repo / '.agentic/runs/current.json').exists(): failures.append('intake without marker')
+    r = subprocess.run([PY, str(ROOT / 'scripts/run_charter.py'), '--finish', '--repo', str(repo)], capture_output=True, text=True)
     recs = list((repo / '.agentic/runs').glob('marketing-weekly-reviews-*.json'))
-    if r.returncode != 0 or len(recs) != 1 or (repo / '.agentic/runs/current.json').exists(): failures.append(f'run record not written cleanly: rc={r.returncode} {r.stderr[-300:]}')
+    if r.returncode != 0 or len(recs) != 1 or (repo / '.agentic/runs/current.json').exists(): failures.append(f'--finish did not close the run cleanly: rc={r.returncode} {r.stderr[-300:]}')
     if not list((repo / '.agentic/ledger/intake').glob('*.json')): failures.append('intake not written')
     # budget: simulate an active run with cap 2 and a fully-approved publish; third call must be denied
     cl = repo / '.agentic/ledger/reviews/clearances'; cl.mkdir(parents=True)

@@ -8,7 +8,7 @@
 new 5-star review (Yalloha)
       ↓ social-media-specialist: generate_post → draft (nothing published)
       ↓ marketing-content-reviewer: reads the draft, writes
-        .agentic/ledger/reviews/clearances/<postId>.json {cleared, content_class, reviewer}
+        .agentic/ledger/reviews/clearances/<postId>.json {cleared, content_class, reviewer, review_id}
       ↓ guard checks .agentic/approvals/standing/mcp__yalloha__publish_post.json
         (human-written: status, approved_by, expires, content_classes)
       ↓ social-media-specialist: publish_post → Facebook / Instagram
@@ -26,7 +26,7 @@ What the guard denies, proven in `scripts/claude_export_selftest.py`:
 ## Setup (about ten minutes)
 
 1. **Yalloha account** — sign up at [yalloha.com](https://www.yalloha.com), connect Airbnb (via Hospitable) and your Facebook Page / Instagram professional account. `get_setup_status` tells you what is left.
-2. **Private company repo** — follow `docs/CLAUDE_CODE.md`. Enable `marketing` in `.agentic/business-ops.json` and declare `{"id": "yalloha", "kind": "social", "write_authority": "bounded"}` under `systems`.
+2. **Private company repo** — follow `docs/CLAUDE_CODE.md`. Enable `marketing` in `.agentic/business-ops.json` and declare `{"id": "yalloha", "kind": "social", "write_authority": "bounded"}` under `systems`. (`none` exposes only read tools; `approval-required` disables standing approvals so every publish needs a per-call token.)
 3. **Marketing profile** — start from `examples/yalloha-host/marketing-profile.json`. It enables `social_media`, `brand_manager`, and `content_reviewer` only, binds both channels to `system://yalloha`, and pre-approves one content class: `consented-review-repost`.
 4. **MCP server** — register `https://www.yalloha.com/api/mcp` in Claude Code under the name **`yalloha`** exactly; the subagents reference it by that name.
 5. **Standing approval** — write `.agentic/approvals/standing/mcp__yalloha__publish_post.json`:

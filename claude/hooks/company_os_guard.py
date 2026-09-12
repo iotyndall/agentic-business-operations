@@ -9,7 +9,22 @@ framework exporter) from the working directory. Fails closed: if the manifest is
 or unreadable, every tool call outside plain Read/Glob/Grep is denied.
 """
 import json, re, sys, time
+from contextlib import contextmanager
 from pathlib import Path
+
+@contextmanager
+def locked(path):
+    """Inter-process lock around counter read-modify-write. Concurrent PreToolUse hooks serialize here."""
+    lock = Path(str(path) + '.lock'); lock.parent.mkdir(parents=True, exist_ok=True)
+    fh = open(lock, 'a+')
+    try:
+        try:
+            import fcntl; fcntl.flock(fh, fcntl.LOCK_EX)
+        except ImportError:
+            import msvcrt; fh.seek(0); msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)
+        yield
+    finally:
+        fh.close()
 
 SAFE_TOOLS = {'Read', 'Glob', 'Grep', 'TodoWrite', 'TodoRead', 'Task', 'Skill'}
 
@@ -66,7 +81,7 @@ def external_action_allowed(m, cwd, tool, tool_input):
     except Exception: pass
     spec = (m.get('connector_tools') or {}).get(tool)
     standing = Path(cwd) / (m.get('standing_approvals', {}).get('root') or '.agentic/approvals/standing') / f'{tool}.json'
-    if spec and spec.get('clearance_key') and standing.exists():
+    if spec and spec.get('standing_allowed') and spec.get('clearance_key') and standing.exists():
         try: sa = json.loads(standing.read_text())
         except Exception: sa = None
         if _approved(sa) and _not_expired(sa):
@@ -91,24 +106,26 @@ def charge_daily_cap(standing_path, sa, tool):
     if not isinstance(cap, int) or cap < 0: return f'standing approval for {tool} has a malformed max_per_day; denying'
     today = time.strftime('%Y-%m-%d', time.gmtime())
     counter = standing_path.with_suffix('.counter.json')
-    try: c = json.loads(counter.read_text()) if counter.exists() else {}
-    except Exception: return f'daily counter for {tool} is unreadable; denying'
-    used = c.get('count', 0) if c.get('date') == today else 0
-    if used >= cap: return f'standing approval for {tool} has reached max_per_day ({cap}) for {today}'
-    counter.write_text(json.dumps({'date': today, 'count': used + 1}))
+    with locked(counter):
+        try: c = json.loads(counter.read_text()) if counter.exists() else {}
+        except Exception: return f'daily counter for {tool} is unreadable; denying'
+        used = c.get('count', 0) if c.get('date') == today else 0
+        if used >= cap: return f'standing approval for {tool} has reached max_per_day ({cap}) for {today}'
+        counter.write_text(json.dumps({'date': today, 'count': used + 1}))
     return None
 
 def charge_run_budget(cwd, tool):
     """When a charter run is active, every allowed external action consumes one unit of its budget. Fails closed on a malformed file."""
     f = Path(cwd) / '.agentic' / 'runs' / 'current.json'
     if not f.exists(): return None
-    try: run = json.loads(f.read_text())
-    except Exception: return 'active charter run file is unreadable; denying external actions'
-    cap = run.get('max_external_actions'); used = run.get('external_actions', 0)
-    if not isinstance(cap, int): return 'active charter run has no max_external_actions; denying'
-    if used >= cap: return f"charter run {run.get('run_id')} has spent its external-action budget ({cap})"
-    run['external_actions'] = used + 1; run.setdefault('external_calls', []).append(tool)
-    f.write_text(json.dumps(run, indent=2))
+    with locked(f):
+        try: run = json.loads(f.read_text())
+        except Exception: return 'active charter run file is unreadable; denying external actions'
+        cap = run.get('max_external_actions'); used = run.get('external_actions', 0)
+        if not isinstance(cap, int): return 'active charter run has no max_external_actions; denying'
+        if used >= cap: return f"charter run {run.get('run_id')} has spent its external-action budget ({cap})"
+        run['external_actions'] = used + 1; run.setdefault('external_calls', []).append(tool)
+        f.write_text(json.dumps(run, indent=2))
     return None
 
 def pre(evt):
@@ -142,6 +159,8 @@ def pre(evt):
     # 2b. Connector servers fail closed: a tool under a declared connector server must be in the published map and granted
     #     to the acting role (the main session may only use observe-authority tools). New/renamed vendor tools are denied.
     mt = re.match(r'^mcp__([a-z0-9_-]+?)__', tool)
+    if mt and mt.group(1) in (m.get('known_connector_servers') or []) and mt.group(1) not in (m.get('connector_servers') or []):
+        return deny(f'{mt.group(1)} is a published connector this company has not declared under systems; no session may use it')
     if mt and mt.group(1) in (m.get('connector_servers') or []):
         spec = (m.get('connector_tools') or {}).get(tool)
         if spec is None: return deny(f'{tool} is not in the published connector map for {mt.group(1)}; failing closed')
@@ -153,12 +172,21 @@ def pre(evt):
         if spec.get('invalidates_clearance') and spec.get('clearance_key'):
             art = str(tool_input.get(spec['clearance_key'], '')).strip()
             if art and re.fullmatch(r'[A-Za-z0-9._-]+', art):
-                cl = Path(cwd) / (m.get('clearances', {}).get('root') or '.agentic/ledger/reviews/clearances') / f'{art}.json'
-                if cl.exists():
+                croot = Path(cwd) / (m.get('clearances', {}).get('root') or '.agentic/ledger/reviews/clearances')
+                hits = []
+                direct = croot / f'{art}.json'
+                if direct.exists(): hits.append(direct)
+                mf = spec.get('clearance_match_field')
+                if mf and croot.exists():
+                    for f in croot.glob('*.json'):
+                        try:
+                            if str(json.loads(f.read_text()).get(mf, '')) == art: hits.append(f)
+                        except Exception: hits.append(f)  # unreadable clearance: treat as blocking
+                for cl in hits:
                     try: c = json.loads(cl.read_text())
                     except Exception: c = {'cleared': True}
                     if c.get('cleared') is True:
-                        return deny(f'{art} is cleared; edits after clearance are not allowed. The reviewer must withdraw the clearance first')
+                        return deny(f'{cl.stem} is cleared; edits to it or its source are not allowed. The reviewer must withdraw the clearance first')
     # 3. Confidential scopes: only the owning role reads or writes inside them.
     p = path_of(tool_input).replace('\\', '/')
     if p:
@@ -166,6 +194,15 @@ def pre(evt):
             scope = a.get('confidential_scope')
             if scope and scope.strip('/') in p and agent != a['name']:
                 return deny(f"{p} is inside {a['name']} confidential scope")
+    # 3b. Runtime authority state is human-owned. No agent may write approvals, counters, run markers, the runtime
+    #     manifest, or the generated .claude/ tree — by file tool or by shell.
+    control = [c.strip('/') for c in (m.get('control_paths') or ['.agentic/approvals/', '.agentic/runs/', '.agentic/runtime-manifest.json', '.claude/'])]
+    if tool in ('Write', 'Edit', 'MultiEdit', 'NotebookEdit') and p and any(c in p for c in control):
+        return deny(f'{p} is runtime authority state; agents may not write it')
+    if tool == 'Bash':
+        cmd = str(tool_input.get('command', ''))
+        if any(c in cmd for c in control) or 'runtime-manifest' in cmd:
+            return deny('shell access to runtime authority state (.agentic/approvals, .agentic/runs, .claude, runtime manifest) is denied')
     # 4. Clearance records: only a reviewer role may write them; the author of content never clears it.
     if tool in ('Write', 'Edit', 'MultiEdit') and p:
         croot = (m.get('clearances', {}).get('root') or '.agentic/ledger/reviews/clearances').strip('/')
