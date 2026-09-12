@@ -66,7 +66,7 @@ with tempfile.TemporaryDirectory() as td:
         for gone in ('direct-email-specialist', 'paid-media-specialist', 'agent-relations-specialist'):
             if gone in got: failures.append(f'{gone} exported despite enabled:false in the marketing profile')
     agents = sorted(p.stem for p in (out / '.claude/agents').glob('*.md'))
-    expected = ['adversarial-reviewer', 'agent-relations-specialist', 'brand-manager', 'business-performance-analyst', 'corporate-development-analyst', 'direct-email-specialist', 'long-range-planner', 'market-intelligence-analyst', 'marketing-content-reviewer', 'paid-media-specialist', 'social-media-specialist', 'strategy-lead']
+    expected = ['adversarial-reviewer', 'agent-relations-specialist', 'brand-manager', 'business-performance-analyst', 'corporate-development-analyst', 'direct-email-specialist', 'long-range-planner', 'market-intelligence-analyst', 'marketing-content-reviewer', 'paid-media-specialist', 'partnerships-program-manager', 'social-media-specialist', 'strategy-lead']
     if agents != expected: failures.append(f'exported agents {agents} != {expected}')
     for a in agents:
         text = (out / f'.claude/agents/{a}.md').read_text()

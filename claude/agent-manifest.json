@@ -218,6 +218,23 @@
    "clearance_writer": true
   },
   {
+   "role": "roles/partnerships-program-manager.md",
+   "name": "partnerships-program-manager",
+   "department": "sales",
+   "description": "Designs partner and affiliate program economics — commission structures, deal templates, guest-perk offers, benchmarks. Propose-only; Finance owns pricing, Legal owns terms, a human approves.",
+   "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Write"
+   ],
+   "model": "opus",
+   "mcp_servers": [],
+   "deny_tool_patterns": [
+    "^mcp__.*"
+   ]
+  },
+  {
    "role": "roles/adversarial-reviewer.md",
    "name": "adversarial-reviewer",
    "department": "review",
