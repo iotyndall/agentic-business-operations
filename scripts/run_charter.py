@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run a standing charter: charter -> intake -> routing -> (optionally) a headless Claude Code session -> run record.
 
-usage: run_charter.py <charter.json> [--repo <private-repo-dir>] [--headless] [--dry-run]
+usage: run_charter.py <charter.json> [--repo <private-repo-dir>] [--headless [--runtime sdk|cli]] [--dry-run]
        run_charter.py --finish [--repo <private-repo-dir>]        close an interactive run
 
 Run from inside the private company repo (default --repo .). The framework must already be bootstrapped
@@ -10,11 +10,20 @@ enforces every external call, and the run record caps how many it may allow (bou
 If a standing approval the charter relies on is missing or expired, the run is downgraded to draft-only.
 Interactive runs leave the run marker in place (so the guard enforces the budget in the session you paste the
 prompt into) until you run `--finish`. Headless runs close the marker themselves.
+
+Headless runtimes: `sdk` (recommended) runs the session on the Claude Agent SDK (claude/runtime/agent_sdk/, needs
+`npm ci` there once): project settings only, only the .mcp.json servers the contract declares, a tool policy enforced as
+a PreToolUse hook on every call (ledger-only writes, repo-only reads, no shell, web only inside a granted role, MCP only
+for described connectors or the charter's bounds.read_tools), and a dollar cap (bounds.max_budget_usd, default 5).
+`cli` shells out to `claude -p`, where every permission prompt the guard leaves open is auto-denied, so the session
+cannot write its ledger.
 """
-import json, subprocess, sys, time, uuid
+import json, os, subprocess, sys, time, uuid
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+SDK_SESSION = Path(os.environ.get('COMPANY_OS_SDK_SESSION', HERE.parent / 'claude' / 'runtime' / 'agent_sdk' / 'run_session.mjs'))
+DEFAULT_BUDGET_USD = 5
 sys.path.insert(0, str(HERE))
 from router import route_intake  # noqa: E402
 
@@ -44,6 +53,8 @@ def main(argv):
     if len(argv) < 2: print(__doc__, file=sys.stderr); return 2
     charter = load(argv[1])
     headless, dry = '--headless' in argv, '--dry-run' in argv
+    runtime = argv[argv.index('--runtime') + 1] if '--runtime' in argv else 'cli'
+    if runtime not in ('sdk', 'cli'): print(f'unknown --runtime {runtime}; use sdk or cli', file=sys.stderr); return 2
     today = time.strftime('%Y-%m-%d', time.gmtime())
     if charter['expires'] <= today: print(f"charter {charter['id']} expired {charter['expires']}; not running"); return 3
     runs = repo / '.agentic' / 'runs'
@@ -61,11 +72,12 @@ def main(argv):
     intake_path = repo / '.agentic' / 'ledger' / 'intake' / f'{run_id}.json'
     record = {'run_id': run_id, 'charter_id': charter['id'], 'owner_role': charter['owner_role'], 'started': now(), 'trigger': charter['trigger'],
               'max_external_actions': cap, 'external_actions': 0, 'downgraded_standing_approvals': downgraded,
-              'intake': str(intake_path), 'routing': routing, 'headless': headless}
+              'intake': str(intake_path), 'routing': routing, 'headless': headless,
+              **({'runtime': runtime, 'max_budget_usd': charter['bounds'].get('max_budget_usd', DEFAULT_BUDGET_USD)} if headless else {})}
     prompt = (f"Charter run {run_id} initiated by {charter['owner_role']} under charter {charter['id']} (approved_by {charter['approved_by']}). "
               f"Intake is at {intake_path}; routing result: {json.dumps(routing)}. Follow the commission flow in CLAUDE.md for department(s) "
               f"{charter['departments']}. This run may perform at most {cap} external action(s); the guard enforces it. "
-              f"Write all artifacts under .agentic/ledger/ and finish with a run summary at .agentic/runs/{run_id}.summary.md.\n\nCommission: {charter['commission']}")
+              f"Write all artifacts under .agentic/ledger/ and finish with a run summary at .agentic/ledger/runs/{run_id}.summary.md.\n\nCommission: {charter['commission']}")
     if dry:
         # No filesystem mutation on a dry run: the prospective intake is rendered, not written.
         print(json.dumps({'record': record, 'intake': intake, 'prompt': prompt}, indent=2)); return 0
@@ -79,9 +91,20 @@ def main(argv):
         return 0
     rc = 0
     try:
-        r = subprocess.run(['claude', '-p', prompt, '--output-format', 'json'], cwd=repo, capture_output=True, text=True,
-                           timeout=60 * charter['bounds'].get('max_runtime_minutes', 30))
-        record['session_output'] = r.stdout[-20000:]; record['session_rc'] = r.returncode; rc = r.returncode
+        minutes = charter['bounds'].get('max_runtime_minutes', 30)
+        if runtime == 'sdk':
+            if not SDK_SESSION.exists(): raise FileNotFoundError(f'SDK runtime not found at {SDK_SESSION}')
+            session_in = json.dumps({'repo': str(repo), 'prompt': prompt, 'timeout_minutes': minutes,
+                                     'max_budget_usd': record['max_budget_usd'], 'read_tools': charter['bounds'].get('read_tools', [])})
+            # The session enforces its own timeout; the outer one only catches a hung process.
+            r = subprocess.run(['node', str(SDK_SESSION)], input=session_in, cwd=repo, capture_output=True, text=True, timeout=60 * minutes + 120)
+            try: record['session'] = json.loads(r.stdout.strip().splitlines()[-1])
+            except Exception: record['session_output'] = r.stdout[-20000:]
+            if r.stderr.strip(): record['session_stderr'] = r.stderr[-4000:]
+        else:
+            r = subprocess.run(['claude', '-p', prompt, '--output-format', 'json'], cwd=repo, capture_output=True, text=True, timeout=60 * minutes)
+            record['session_output'] = r.stdout[-20000:]
+        record['session_rc'] = r.returncode; rc = r.returncode
     except Exception as exc:
         record['error'] = str(exc); rc = 5
     finally:

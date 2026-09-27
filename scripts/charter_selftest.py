@@ -27,6 +27,8 @@ mutate('standing approval for a non-connector tool', lambda c: c['bounds'].updat
 mutate('standing approval for a read tool', lambda c: c['bounds'].update(standing_approvals=['mcp__yalloha__get_analytics']))
 mutate('external budget without any standing approval', lambda c: c['bounds'].update(standing_approvals=[]))
 mutate('cron without timezone', lambda c: c['trigger'].pop('timezone'))
+mutate('read tool on an undeclared system', lambda c: c['bounds'].update(read_tools=['mcp__gmail__search']))
+mutate('read tool on a published connector', lambda c: c['bounds'].update(read_tools=['mcp__yalloha__*']))
 
 # runner + budget: export a runtime into a temp private repo, run the charter dry, then simulate a session spending its budget
 with tempfile.TemporaryDirectory() as td:
@@ -76,4 +78,4 @@ with tempfile.TemporaryDirectory() as td:
 
 if failures:
     print('\n'.join('ERROR: ' + f for f in failures)); sys.exit(1)
-print('PASS charters: 10 authority-widening mutations rejected; runner downgrades without standing approval, writes run records, refuses overlap; guard enforces the per-run external-action budget and fails closed')
+print('PASS charters: 12 authority-widening mutations rejected; runner downgrades without standing approval, writes run records, refuses overlap; guard enforces the per-run external-action budget and fails closed')

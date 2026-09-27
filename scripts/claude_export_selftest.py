@@ -72,6 +72,11 @@ with tempfile.TemporaryDirectory() as td:
         text = (out / f'.claude/agents/{a}.md').read_text()
         if not text.startswith('---\nname: ' + a): failures.append(f'{a}: bad frontmatter')
         if '## ' not in text.split('---',2)[2]: failures.append(f'{a}: role contract body missing')
+        fm = text.split('---', 2)[1]
+        servers = next((l.split(':', 1)[1].strip(' []').split(', ') for l in fm.splitlines() if l.startswith('mcpServers:')), [])
+        tools_line = next((l for l in fm.splitlines() if l.startswith('tools:')), '')
+        for srv in filter(None, servers):
+            if f'mcp__{srv}' not in tools_line: failures.append(f'{a}: bound server {srv} not granted in tools (its MCP tools would be filtered out)')
     settings = json.loads((out / '.claude/settings.json').read_text())
     if 'PreToolUse' not in settings.get('hooks', {}): failures.append('settings.json missing PreToolUse hook')
     manifest = json.loads((out / '.agentic/runtime-manifest.json').read_text())

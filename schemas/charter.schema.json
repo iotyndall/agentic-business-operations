@@ -30,7 +30,9 @@
         "max_runtime_minutes": {"type": "integer", "minimum": 1},
         "standing_approvals": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^mcp__[a-z0-9_-]+__[a-z0-9_]+$"},
                                "description": "Standing approvals this charter may rely on. Each must exist as a human-written file at run time; the charter cannot create them."},
-        "notify": {"type": "string", "description": "Where the run summary goes (ref, not a secret)."}
+        "notify": {"type": "string", "description": "Where the run summary goes (ref, not a secret)."},
+        "max_budget_usd": {"type": "number", "exclusiveMinimum": 0, "description": "Dollar cap (estimated model spend) on one headless session under the SDK runtime; the session stops when it is reached. Default 5."},
+        "read_tools": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^mcp__[a-z0-9_-]+__([a-z0-9_]+|\\*)$"}, "description": "MCP tools of servers with no published connector that this charter declares read-only (exact names or mcp__<server>__*). Each server must be a system declared write_authority none. The SDK runtime denies any other undescribed MCP tool."}
       }
     },
     "approved_by": {"type": "string", "minLength": 1},

@@ -24,6 +24,7 @@ GATES = [
     ('charter schema (synthetic)', [f'{S}/validate_json_schema.py', 'schemas/charter.schema.json', 'examples/synthetic-company/charters/marketing-weekly.charter.json']),
     ('charter bounded by contract, connectors and manifest', [f'{S}/validate_charter.py', 'examples/synthetic-company/company-contract.json', 'examples/synthetic-company/charters/marketing-weekly.charter.json']),
     ('charters cannot widen authority; run budget enforced', [f'{S}/charter_selftest.py']),
+    ('agent-sdk headless runtime', [f'{S}/agent_sdk_runtime_selftest.py']),
     ('provider/model routing', [f'{S}/model_selection_selftest.py']),
     ('private-framework trust boundary', [f'{S}/contract_hardening_selftest.py']),
     ('synthetic company routing and authority', [f'{S}/evaluate_scenarios.py']),
