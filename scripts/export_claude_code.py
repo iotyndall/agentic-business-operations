@@ -112,8 +112,11 @@ def main(argv):
         a['mcp_servers'] = bound
         a['deny_tool_patterns'] = list(a.get('deny_tool_patterns', [])) + [f'^mcp__{srv}__.*' for srv in unbound]
         body = (ROOT / a['role']).read_text(encoding='utf-8')
+        # `tools:` is an allowlist, so a bound server must also be granted there or none of its tools reach the subagent.
+        # Server-level grants (mcp__<server>) cover every tool; the guard still rules on each call.
+        tools = list(a['tools']) + [f'mcp__{srv}' for srv in bound]
         fm = ['---', f"name: {a['name']}", f"description: {a['description']}",
-              f"tools: {', '.join(a['tools'])}", f"model: {a.get('model', 'inherit')}"]
+              f"tools: {', '.join(tools)}", f"model: {a.get('model', 'inherit')}"]
         if a.get('mcp_servers'): fm.append('mcpServers: [' + ', '.join(a['mcp_servers']) + ']')
         fm.append('---')
         header = (f"<!-- Generated from {a['role']} at agentic-business-operations@{commit}. Do not edit; re-export. -->\n\n"

@@ -37,7 +37,11 @@ A charter turns the Chief of Staff into a chief operating officer, or a departme
 
 Interactive: `python3 .company-os/scripts/run_charter.py cadence/<id>.charter.json` writes the intake and the run marker, then prints the prompt; paste it into `claude`. The marker stays active — so the guard enforces the budget in that session — until you run `run_charter.py --finish`. `--dry-run` writes nothing.
 
-Headless: add `--headless`; the runner opens `claude -p` with the commission, times it out at `max_runtime_minutes`, and writes `.agentic/runs/<run_id>.json` with the routing, budget spent, and session output tail.
+Headless: add `--headless --runtime sdk` (run `npm ci --prefix .company-os/claude/runtime/agent_sdk` once). The session runs on the Claude Agent SDK with the private repo's project settings (exported agents, guard hook, CLAUDE.md) and its `.mcp.json` only — no user settings, no account-level connectors. It times out at `max_runtime_minutes`, stops at `bounds.max_budget_usd` (default 5), and writes `.agentic/runs/<run_id>.json` with the routing, external-action budget spent, dollar cost, tool calls, and every denial.
+
+Permission prompts the guard leaves open are answered by a fixed policy (`claude/runtime/agent_sdk/policy.mjs`): writes only under `.agentic/ledger/` (the run summary goes to `.agentic/ledger/runs/<run_id>.summary.md`; `.agentic/runs/` is runner state the guard reserves); web research only for roles whose subagent grants it; no shell; MCP calls allowed because the guard already ruled on them. The guard still runs first and its deny is final.
+
+`--runtime cli` (the default, kept for compatibility) shells out to `claude -p`. There, every permission prompt the guard does not decide is auto-denied — including the session's own ledger writes — so prefer `sdk`.
 
 Scheduled: copy `claude/workflows/charter-cron.yml.template` into the private repo's `.github/workflows/`, fill the cron (converted to UTC), and add `ANTHROPIC_API_KEY`. Each run commits its ledger on a branch and opens a PR, so a human sees every run.
 

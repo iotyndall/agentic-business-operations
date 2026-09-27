@@ -1,0 +1,9 @@
+{
+  "name": "company-os-agent-sdk-runtime",
+  "private": true,
+  "type": "module",
+  "description": "Headless charter sessions on the Claude Agent SDK. Invoked by scripts/run_charter.py --runtime sdk.",
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node --test policy.test.mjs" },
+  "dependencies": { "@anthropic-ai/claude-agent-sdk": "0.3.283" }
+}

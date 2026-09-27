@@ -19,10 +19,11 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with: { persist-credentials: true }
       - run: bash scripts/bootstrap.sh
-      - run: npm install -g @anthropic-ai/claude-code
+      # The SDK runtime answers the permission prompts `claude -p` would auto-deny (ledger writes) and caps spend.
+      - run: npm ci --prefix .company-os/claude/runtime/agent_sdk --no-audit --no-fund
       - run: python3 .company-os/scripts/validate_charter.py .agentic/business-ops.json cadence/{{CHARTER_ID}}.charter.json
       - env: { ANTHROPIC_API_KEY: "${{ secrets.ANTHROPIC_API_KEY }}" }
-        run: python3 .company-os/scripts/run_charter.py cadence/{{CHARTER_ID}}.charter.json --headless
+        run: python3 .company-os/scripts/run_charter.py cadence/{{CHARTER_ID}}.charter.json --headless --runtime sdk
       - name: open PR with the ledger
         run: |
           git config user.name company-os-bot && git config user.email company-os-bot@example.invalid

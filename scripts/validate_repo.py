@@ -51,7 +51,7 @@ secret_patterns = {
 email = re.compile(r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b', re.I)
 allowed_email_domains={'example.com','example.org','example.net','example.invalid'}
 allowed_non_email_tokens={'git@github.com'}
-skip={'.git'}
+skip={'.git','node_modules'}  # node_modules is gitignored; never published
 for p in ROOT.rglob('*'):
     if not p.is_file() or any(part in skip for part in p.parts): continue
     try: text=p.read_text(encoding='utf-8')
