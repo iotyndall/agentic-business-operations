@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, re, sys
+import json, re, sys, subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,9 +51,13 @@ secret_patterns = {
 email = re.compile(r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b', re.I)
 allowed_email_domains={'example.com','example.org','example.net','example.invalid'}
 allowed_non_email_tokens={'git@github.com'}
-skip={'.git','node_modules'}  # node_modules is gitignored; never published
+skip={'.git'}
+# Installed dependencies are skipped only while untracked: anything under node_modules that is committed is published.
+try: tracked=set(subprocess.run(['git','ls-files','-z'],cwd=ROOT,capture_output=True,text=True,check=True).stdout.split('\0'))
+except Exception: tracked=None
 for p in ROOT.rglob('*'):
     if not p.is_file() or any(part in skip for part in p.parts): continue
+    if 'node_modules' in p.parts and (tracked is None or str(p.relative_to(ROOT)) not in tracked): continue
     try: text=p.read_text(encoding='utf-8')
     except Exception: continue
     for kind,pat in secret_patterns.items():

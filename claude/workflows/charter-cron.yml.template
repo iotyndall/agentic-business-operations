@@ -24,7 +24,9 @@ jobs:
       - run: python3 .company-os/scripts/validate_charter.py .agentic/business-ops.json cadence/{{CHARTER_ID}}.charter.json
       - env: { ANTHROPIC_API_KEY: "${{ secrets.ANTHROPIC_API_KEY }}" }
         run: python3 .company-os/scripts/run_charter.py cadence/{{CHARTER_ID}}.charter.json --headless --runtime sdk
+      # always(): a run stopped by its budget or timeout exits nonzero, and that is exactly the ledger a human must see.
       - name: open PR with the ledger
+        if: always()
         run: |
           git config user.name company-os-bot && git config user.email company-os-bot@example.invalid
           B=charter/{{CHARTER_ID}}/$(date -u +%Y%m%dT%H%M%SZ)

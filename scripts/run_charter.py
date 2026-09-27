@@ -12,9 +12,11 @@ Interactive runs leave the run marker in place (so the guard enforces the budget
 prompt into) until you run `--finish`. Headless runs close the marker themselves.
 
 Headless runtimes: `sdk` (recommended) runs the session on the Claude Agent SDK (claude/runtime/agent_sdk/, needs
-`npm ci` there once): project settings only, the repo's .mcp.json only, permission prompts answered by a fixed policy
-(ledger writes yes, shell no), and a dollar cap (bounds.max_budget_usd, default 5). `cli` shells out to
-`claude -p`, where every permission prompt the guard leaves open is auto-denied, so the session cannot write its ledger.
+`npm ci` there once): project settings only, only the .mcp.json servers the contract declares, a tool policy enforced as
+a PreToolUse hook on every call (ledger-only writes, repo-only reads, no shell, web only inside a granted role, MCP only
+for described connectors or the charter's bounds.read_tools), and a dollar cap (bounds.max_budget_usd, default 5).
+`cli` shells out to `claude -p`, where every permission prompt the guard leaves open is auto-denied, so the session
+cannot write its ledger.
 """
 import json, os, subprocess, sys, time, uuid
 from pathlib import Path
@@ -93,7 +95,7 @@ def main(argv):
         if runtime == 'sdk':
             if not SDK_SESSION.exists(): raise FileNotFoundError(f'SDK runtime not found at {SDK_SESSION}')
             session_in = json.dumps({'repo': str(repo), 'prompt': prompt, 'timeout_minutes': minutes,
-                                     'max_budget_usd': record['max_budget_usd'], 'model': charter['bounds'].get('model')})
+                                     'max_budget_usd': record['max_budget_usd'], 'read_tools': charter['bounds'].get('read_tools', [])})
             # The session enforces its own timeout; the outer one only catches a hung process.
             r = subprocess.run(['node', str(SDK_SESSION)], input=session_in, cwd=repo, capture_output=True, text=True, timeout=60 * minutes + 120)
             try: record['session'] = json.loads(r.stdout.strip().splitlines()[-1])

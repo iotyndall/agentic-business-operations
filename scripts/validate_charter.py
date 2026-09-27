@@ -83,6 +83,15 @@ def validate(company, charter, today=None):
         holders = [a for d in charter['departments'] for a in agents_by_dept.get(d, [])
                    if server in (a.get('mcp_servers') or []) and not any(re.search(p, sa) for p in a.get('deny_tool_patterns', []))]
         if not holders: errors.append(f'no agent in {charter["departments"]} can call {sa}; the standing approval is dead weight')
+    described = {json.loads((ROOT / rel).read_text(encoding='utf-8'))['mcp']['server_name'] for rel in manifest.get('connectors', [])}
+    for rt in charter['bounds'].get('read_tools', []):
+        server = rt.split('__')[1]
+        if server not in systems:
+            errors.append(f'read tool {rt} names server {server}, which the company contract does not declare under systems')
+        elif systems[server] != 'none':
+            errors.append(f'read tool {rt}: system {server} is write_authority={systems[server]}; only a read-only (none) system can be declared read-only wholesale')
+        elif server in described:
+            errors.append(f'read tool {rt}: server {server} has a published connector; its tools are classified there, not by the charter')
     if charter['bounds']['max_external_actions'] > 0 and not charter['bounds'].get('standing_approvals'):
         errors.append('max_external_actions > 0 requires at least one standing_approval; otherwise set 0 for a draft-only charter')
     if 'cron' in charter['trigger']:
