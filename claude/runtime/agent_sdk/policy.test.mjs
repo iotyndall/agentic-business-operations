@@ -9,6 +9,7 @@ const repo = mkdtempSync(path.join(tmpdir(), 'cos-policy-'));
 mkdirSync(path.join(repo, '.agentic', 'ledger', 'handoffs'), { recursive: true });
 const outside = mkdtempSync(path.join(tmpdir(), 'cos-outside-'));
 symlinkSync(outside, path.join(repo, '.agentic', 'ledger', 'escape'));
+symlinkSync(path.join(outside, 'not-yet'), path.join(repo, '.agentic', 'ledger', 'dangling'));
 
 const base = { repo, isSubagent: false, connectorTools: ['mcp__yalloha__publish_post'], readTools: ['mcp__quickbooks__*', 'mcp__pricelabs__get_listings'] };
 const run = (t, i, ctx = {}) => decide(t, i, { ...base, ...ctx }).behavior;
@@ -29,6 +30,8 @@ test('writes outside the ledger are denied: runner state, traversal, look-alikes
   deny('Write', { file_path: '.agentic/ledger' });
   deny('Write', { file_path: '.agentic/ledger/escape/owned.txt' });
   deny('Write', { file_path: '.agentic/ledger/escape/new/dir/owned.txt' });
+  deny('Write', { file_path: '.agentic/ledger/dangling/owned.txt' });
+  deny('Write', { file_path: '.agentic/ledger/dangling' });
   deny('Edit', { file_path: '.claude/settings.json' });
   deny('Write', { file_path: '/etc/passwd' });
   deny('Write', {});

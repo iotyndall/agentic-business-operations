@@ -6,7 +6,7 @@
 //   - as canUseTool, which answers the permission prompts `claude -p` would auto-deny (e.g. ledger writes).
 // The exported company guard hook runs as well; any deny from either is final. This policy never widens the guard.
 
-import { existsSync, realpathSync } from 'node:fs';
+import { lstatSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 
 const FILE_WRITERS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
@@ -18,16 +18,20 @@ const WEB = new Set(['WebSearch', 'WebFetch']);
 
 /** Real path of `p` (relative to `repo`), resolving symlinks through the deepest existing ancestor, so a symlinked
  *  directory under the ledger cannot redirect a write that has not been created yet. */
+// A dangling symlink cannot be resolved, so it is reported as unresolvable (never "inside") rather than as a
+// not-yet-created path that would inherit its parent's location.
+const UNRESOLVABLE = '/\0unresolvable';
+const present = (p) => { try { lstatSync(p); return true; } catch { return false; } };
+
 export function canonical(repo, p) {
   let cur = path.resolve(repo, p);
   const rest = [];
-  while (!existsSync(cur)) {
+  while (!present(cur)) {
     const parent = path.dirname(cur);
     if (parent === cur) break;
     rest.unshift(path.basename(cur)); cur = parent;
   }
-  const real = existsSync(cur) ? realpathSync(cur) : cur;
-  return path.join(real, ...rest);
+  try { return path.join(realpathSync(cur), ...rest); } catch { return UNRESOLVABLE; }
 }
 
 function inside(base, target) {
